@@ -1,17 +1,19 @@
 "use client"
 
-import { signIn, ClientSafeProvider } from "next-auth/react"
+import { signIn } from "next-auth/react"
 import Image from "next/image"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import type { ClientSafeProvider } from "next-auth/react"
 
-type SignInComponentProps = {
+type SignUpComponentProps = {
   providers: Record<string, ClientSafeProvider> | null
 }
 
-export default function SignInComponent({ providers }: SignInComponentProps) {
+export default function SignUpComponent({ providers }: SignUpComponentProps) {
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -20,17 +22,36 @@ export default function SignInComponent({ providers }: SignInComponentProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
       })
 
-      if (result?.error) {
-        setError("Invalid email or password")
-        console.error("Sign-in error:", result.error)
+      if (res.ok) {
+        // Sign in the user after successful registration
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (result?.error) {
+          setError("Error signing in after registration")
+          console.error("Sign-in error:", result.error)
+        } else {
+          router.push("/")
+        }
       } else {
-        router.push("/")
+        const data = await res.json()
+        setError(data.message || "Error during registration")
+        console.error("Registration error:", data.message)
       }
     } catch (error) {
       setError("Something went wrong")
@@ -47,6 +68,21 @@ export default function SignInComponent({ providers }: SignInComponentProps) {
     >
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         <div className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+              Full Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              className="relative block w-full rounded-lg border-0 bg-gray-900/50 py-3 px-4 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6 transition-all duration-200"
+              placeholder="Enter your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
               Email address
@@ -72,7 +108,7 @@ export default function SignInComponent({ providers }: SignInComponentProps) {
               type="password"
               required
               className="relative block w-full rounded-lg border-0 bg-gray-900/50 py-3 px-4 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6 transition-all duration-200"
-              placeholder="Enter your password"
+              placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -96,7 +132,7 @@ export default function SignInComponent({ providers }: SignInComponentProps) {
             type="submit"
             className="group relative flex w-full justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all duration-200"
           >
-            Sign in
+            Create account
           </motion.button>
         </div>
       </form>
@@ -133,7 +169,7 @@ export default function SignInComponent({ providers }: SignInComponentProps) {
                       className="mr-2"
                     />
                   )}
-                  Sign in with {provider.name}
+                  Sign up with {provider.name}
                 </button>
               </motion.div>
             )
@@ -142,12 +178,12 @@ export default function SignInComponent({ providers }: SignInComponentProps) {
       </div>
 
       <p className="mt-4 text-center text-sm text-gray-400">
-        Don’t have an account?{" "}
+        Already have an account?{" "}
         <Link
-          href="/auth/signup"
+          href="/auth/signin"
           className="font-medium text-blue-500 hover:text-blue-400 transition-colors duration-200"
         >
-          Sign up
+          Sign in
         </Link>
       </p>
     </motion.div>

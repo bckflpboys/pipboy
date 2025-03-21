@@ -1,7 +1,7 @@
 import { getProviders } from "next-auth/react"
-import SignInComponent from "./SignInComponent"
+import SignUpComponent from "./SignUpComponent"
 
-export default async function SignIn() {
+export default async function SignUp() {
   const providers = await getProviders()
 
   return (
@@ -13,9 +13,9 @@ export default async function SignIn() {
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center space-y-8">
           <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">
-            Welcome to PipBoy
+            Create an Account
           </h1>
-          <SignInComponent providers={providers} />
+          <SignUpComponent providers={providers} />
         </div>
       </div>
     </div>

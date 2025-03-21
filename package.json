@@ -11,6 +11,8 @@
   "dependencies": {
     "@auth/mongodb-adapter": "^3.8.0",
     "@heroicons/react": "^2.1.1",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.0",
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.3",
