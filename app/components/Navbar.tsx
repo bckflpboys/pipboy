@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import Button from './Button';
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
+import UserProfile from './UserProfile';
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -18,16 +19,15 @@ const Navbar = () => {
             Pipboy
           </Link>
 
-          {/* Auth Button */}
-          {session ? (
-            <Button variant="secondary" onClick={() => signOut()}>
-              Sign Out
-            </Button>
-          ) : (
-            <Button variant="secondary" onClick={() => router.push('/auth/signin')}>
-              Sign In
-            </Button>
-          )}
+          <div className="flex items-center gap-4">
+            {session ? (
+              <UserProfile />
+            ) : (
+              <Button variant="secondary" onClick={() => router.push('/auth/signin')}>
+                Sign In
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </nav>
