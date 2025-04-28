@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/core": "^0.39.0",
+    "@auth/core": "0.34.2",
     "@auth/mongodb-adapter": "^3.8.0",
     "@headlessui/react": "^2.2.2",
     "@heroicons/react": "^2.1.1",
@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/next-auth": "^3.13.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
