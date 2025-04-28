@@ -33,7 +33,7 @@ interface Payment {
 }
 
 export default function MembershipPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'payments'>('overview');
 

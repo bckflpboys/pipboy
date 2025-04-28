@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   PlusIcon,
   PencilIcon,
@@ -22,7 +23,7 @@ interface Video {
 export default function VideoManagement() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [videos, setVideos] = useState<Video[]>([
+  const [videos] = useState<Video[]>([
     // Dummy data for demonstration
     {
       id: '1',
@@ -100,10 +101,11 @@ export default function VideoManagement() {
             className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-6 flex gap-6"
           >
             <div className="relative w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
-              <img
+              <Image
                 src={video.thumbnail}
                 alt={video.title}
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
               />
               <div className="absolute bottom-2 right-2 bg-black/70 px-2 py-1 rounded text-xs">
                 {video.duration}

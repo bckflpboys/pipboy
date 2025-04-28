@@ -30,7 +30,7 @@ export default function ProfilePage() {
     if (session?.user?.email) {
       fetchProfile();
     }
-  }, [session, status]);
+  }, [session, status, router]);
 
   const fetchProfile = async () => {
     try {

@@ -40,7 +40,7 @@ interface Module {
 }
 
 export default function ClassPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [activeModule, setActiveModule] = useState<string>('1');
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);

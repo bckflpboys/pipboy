@@ -24,7 +24,7 @@ interface BlogPost {
 
 export default function BlogManagement() {
   const [isCreating, setIsCreating] = useState(false);
-  const [posts, setPosts] = useState<BlogPost[]>([
+  const [posts] = useState<BlogPost[]>([
     {
       id: '1',
       title: 'Getting Started with Web Development',

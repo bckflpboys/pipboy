@@ -14,7 +14,7 @@ import SubscriptionManagement from './components/SubscriptionManagement';
 type DashboardTab = 'videos' | 'analytics' | 'users' | 'settings' | 'blog' | 'subscriptions';
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<DashboardTab>('videos');
 
