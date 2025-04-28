@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs"
 
 export const runtime = 'nodejs'
 
-const handler = NextAuth({
+export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
@@ -64,6 +64,8 @@ const handler = NextAuth({
       return session;
     },
   },
-})
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }
