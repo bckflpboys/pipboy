@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.8.0",
+    "@headlessui/react": "^2.2.2",
     "@heroicons/react": "^2.1.1",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.2",
