@@ -1,12 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
+import { Session } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import clientPromise from '@/lib/mongodb';
 import { User, USERS_COLLECTION } from '../../../models/User';
 
+interface CustomSession extends Session {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+  }
+}
+
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as CustomSession;
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -15,7 +25,7 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db();
     
-    const user = await db.collection(USERS_COLLECTION).findOne({ email: session.user.email });
+    const user = await db.collection<User>(USERS_COLLECTION).findOne({ email: session.user.email });
     
     if (!user) {
       // Create user if they don't exist
@@ -23,11 +33,14 @@ export async function GET() {
         name: session.user.name || '',
         email: session.user.email,
         image: session.user.image || '',
+        bio: '',
+        location: '',
+        website: '',
         createdAt: new Date(),
         updatedAt: new Date()
       };
       
-      await db.collection(USERS_COLLECTION).insertOne(newUser);
+      await db.collection<User>(USERS_COLLECTION).insertOne(newUser);
       return NextResponse.json(newUser);
     }
 
@@ -40,7 +53,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as CustomSession;
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -55,7 +68,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Bio cannot be more than 500 characters' }, { status: 400 });
     }
 
-    const updatedUser = await db.collection(USERS_COLLECTION).findOneAndUpdate(
+    const updatedUser = await db.collection<User>(USERS_COLLECTION).findOneAndUpdate(
       { email: session.user.email },
       {
         $set: {
@@ -66,11 +79,11 @@ export async function PUT(request: Request) {
       { returnDocument: 'after', upsert: true }
     );
 
-    if (!updatedUser?.value) {
+    if (!updatedUser) {
       return NextResponse.json({ error: 'Failed to update user' }, { status: 400 });
     }
 
-    return NextResponse.json(updatedUser.value);
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error('Profile PUT error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
