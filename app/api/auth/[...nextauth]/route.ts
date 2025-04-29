@@ -1,15 +1,17 @@
-import NextAuth, { NextAuthOptions } from "next-auth/next"
+import NextAuth from "next-auth/next"
+import type { DefaultSession, NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import clientPromise from "@/lib/mongodb"
 import bcrypt from "bcryptjs"
 import { JWT } from "next-auth/jwt"
+import { Adapter } from "next-auth/adapters"
 
 export const runtime = 'nodejs'
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise) as Adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -58,7 +60,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
-    async session({ session, token }: { session: any; token: JWT }) {
+    async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (session.user) {
         (session.user as { id: string | undefined }).id = token.sub;
       }
