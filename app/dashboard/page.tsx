@@ -44,16 +44,16 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-16">
-      <div className="flex">
+    <div className="min-h-screen bg-black">
+      <div className="flex h-screen pt-16">
         <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-8">
-          <div className="relative">
+        <main className="flex-1 overflow-y-auto">
+          <div className="relative h-full">
             {/* Background gradient */}
             <div className="fixed inset-0 bg-gradient-to-b from-blue-900/20 via-black to-black -z-10" />
             
             {/* Content */}
-            <div className="relative z-10">
+            <div className="relative z-10 p-8">
               {renderContent()}
             </div>
           </div>

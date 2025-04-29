@@ -9,6 +9,7 @@ import {
   TagIcon,
   CalendarIcon,
   UserIcon,
+  EllipsisVerticalIcon,
 } from '@heroicons/react/24/outline';
 
 interface BlogPost {
@@ -24,6 +25,7 @@ interface BlogPost {
 
 export default function BlogManagement() {
   const [isCreating, setIsCreating] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [posts] = useState<BlogPost[]>([
     {
       id: '1',
@@ -38,15 +40,19 @@ export default function BlogManagement() {
     // Add more dummy posts as needed
   ]);
 
+  const toggleMenu = (postId: string) => {
+    setActiveMenu(activeMenu === postId ? null : postId);
+  };
+
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">
           Blog Management
         </h1>
         <button
           onClick={() => setIsCreating(true)}
-          className="group relative flex justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-all duration-200"
+          className="w-full sm:w-auto group relative flex justify-center rounded-lg bg-blue-600 px-3 py-2 sm:px-4 sm:py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-all duration-200"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
           Create Post
@@ -58,7 +64,7 @@ export default function BlogManagement() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-6"
+          className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-4 sm:p-6"
         >
           <div className="space-y-4">
             <div>
@@ -67,7 +73,7 @@ export default function BlogManagement() {
               </label>
               <input
                 type="text"
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 placeholder="Enter post title"
               />
             </div>
@@ -76,7 +82,7 @@ export default function BlogManagement() {
                 Excerpt
               </label>
               <textarea
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 rows={2}
                 placeholder="Brief description of the post"
               />
@@ -86,7 +92,7 @@ export default function BlogManagement() {
                 Content
               </label>
               <textarea
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 rows={10}
                 placeholder="Write your post content here..."
               />
@@ -97,21 +103,21 @@ export default function BlogManagement() {
               </label>
               <input
                 type="text"
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 placeholder="Enter tags separated by commas"
               />
             </div>
-            <div className="flex justify-end gap-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
               <button
                 onClick={() => setIsCreating(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white"
+                className="w-full sm:w-auto order-3 sm:order-1 px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-gray-900/50 rounded-lg hover:bg-gray-800/50"
               >
                 Cancel
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors">
+              <button className="w-full sm:w-auto order-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors">
                 Save as Draft
               </button>
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors">
+              <button className="w-full sm:w-auto order-1 sm:order-3 px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors">
                 Publish
               </button>
             </div>
@@ -120,37 +126,94 @@ export default function BlogManagement() {
       )}
 
       {/* Blog Posts List */}
-      <div className="grid gap-6">
+      <div className="grid gap-4 sm:gap-6">
         {posts.map((post) => (
           <motion.div
             key={post.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-6"
+            className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-4 sm:p-6"
           >
-            <div className="flex justify-between">
-              <div className="flex-1">
-                <h3 className="text-lg font-medium text-white mb-2">
-                  {post.title}
-                </h3>
-                <p className="text-gray-400 text-sm mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+              <div className="flex-1 space-y-2 sm:space-y-4">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-lg font-medium text-white">
+                    {post.title}
+                  </h3>
+                  
+                  {/* Desktop Actions */}
+                  <div className="hidden sm:flex items-start gap-2">
+                    <button 
+                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+                      title="Edit post"
+                    >
+                      <PencilIcon className="w-5 h-5" />
+                    </button>
+                    <button 
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
+                      title="Delete post"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Mobile Actions */}
+                  <div className="sm:hidden">
+                    <button
+                      onClick={() => toggleMenu(post.id)}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+                    >
+                      <EllipsisVerticalIcon className="w-5 h-5" />
+                    </button>
+
+                    {activeMenu === post.id && (
+                      <div className="absolute right-4 mt-2 w-48 rounded-lg bg-gray-900 shadow-lg ring-1 ring-gray-800 z-10">
+                        <div className="py-1">
+                          <button
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800"
+                            onClick={() => {
+                              // Handle edit
+                              toggleMenu(post.id);
+                            }}
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                            Edit post
+                          </button>
+                          <button
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800"
+                            onClick={() => {
+                              // Handle delete
+                              toggleMenu(post.id);
+                            }}
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                            Delete post
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <p className="text-gray-400 text-sm">
                   {post.excerpt}
                 </p>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
+
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
                   <div className="flex items-center gap-1">
                     <UserIcon className="w-4 h-4" />
-                    {post.author}
+                    <span className="truncate">{post.author}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <CalendarIcon className="w-4 h-4" />
-                    {post.publishedAt}
+                    <span>{post.publishedAt}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <TagIcon className="w-4 h-4" />
-                    {post.tags.join(', ')}
+                  <div className="flex items-center gap-1 max-w-full">
+                    <TagIcon className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{post.tags.join(', ')}</span>
                   </div>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                       post.status === 'published'
                         ? 'bg-green-500/10 text-green-500'
                         : 'bg-yellow-500/10 text-yellow-500'
@@ -159,14 +222,6 @@ export default function BlogManagement() {
                     {post.status}
                   </span>
                 </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors">
-                  <PencilIcon className="w-5 h-5" />
-                </button>
-                <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors">
-                  <TrashIcon className="w-5 h-5" />
-                </button>
               </div>
             </div>
           </motion.div>
