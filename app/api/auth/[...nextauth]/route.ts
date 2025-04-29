@@ -1,13 +1,14 @@
-import NextAuth from "next-auth/next"
+import NextAuth, { NextAuthOptions } from "next-auth/next"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import clientPromise from "@/lib/mongodb"
 import bcrypt from "bcryptjs"
+import { JWT } from "next-auth/jwt"
 
 export const runtime = 'nodejs'
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
@@ -57,13 +58,15 @@ const handler = NextAuth({
     signIn: "/auth/signin",
   },
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: JWT }) {
       if (session.user) {
         (session.user as { id: string | undefined }).id = token.sub;
       }
       return session;
     },
   },
-})
+}
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
