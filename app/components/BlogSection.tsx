@@ -2,34 +2,9 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import Button from './Button';
-
-const blogPosts = [
-  {
-    title: "Understanding Price Action Trading: A Comprehensive Guide",
-    excerpt: "Master the art of reading price movements and identifying key market patterns without relying on indicators.",
-    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2070&auto=format&fit=crop",
-    category: "TRADING EDUCATION",
-    readTime: "10 min read",
-    date: "May 10, 2025"
-  },
-  {
-    title: "Risk Management Strategies for Day Trading",
-    excerpt: "Learn how to protect your capital and maximize profits with these proven risk management techniques.",
-    image: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?q=80&w=2070&auto=format&fit=crop",
-    category: "RISK MANAGEMENT",
-    readTime: "8 min read",
-    date: "May 8, 2025"
-  },
-  {
-    title: "The Psychology of Successful Traders",
-    excerpt: "Discover the mindset and emotional control techniques used by professional traders to stay consistent.",
-    image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=2070&auto=format&fit=crop",
-    category: "TRADING PSYCHOLOGY",
-    readTime: "12 min read",
-    date: "May 5, 2025"
-  }
-];
+import { blogPosts } from '../data/blogPosts';
 
 function BlogSection() {
   return (
@@ -65,57 +40,61 @@ function BlogSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogPosts.map((post, index) => (
             <motion.article
-              key={post.title}
+              key={post.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               className="group bg-gray-900/30 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300"
             >
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  unoptimized
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
-                <div className="absolute bottom-4 left-4">
-                  <span className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-xs px-2 py-1 rounded-full border border-blue-500/50">
-                    {post.category}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                  <span>{post.date}</span>
-                  <span>•</span>
-                  <span>{post.readTime}</span>
+              <Link href={`/blog/${post.id}`}>
+                <div className="relative h-48 overflow-hidden">
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
+                  <div className="absolute bottom-4 left-4">
+                    <span className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-xs px-2 py-1 rounded-full border border-blue-500/50">
+                      {post.category}
+                    </span>
+                  </div>
                 </div>
                 
-                <h3 className="text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors duration-300">
-                  {post.title}
-                </h3>
-                
-                <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                  {post.excerpt}
-                </p>
-                
-                <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
-                  Read More 
-                  <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </button>
-              </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                    <span>{post.date}</span>
+                    <span>•</span>
+                    <span>{post.readTime}</span>
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors duration-300">
+                    {post.title}
+                  </h3>
+                  
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                    {post.excerpt}
+                  </p>
+                  
+                  <div className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
+                    Read More 
+                    <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
             </motion.article>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="secondary">VIEW ALL POSTS</Button>
+          <Link href="/blog">
+            <Button variant="secondary">VIEW ALL POSTS</Button>
+          </Link>
         </div>
       </div>
     </div>
