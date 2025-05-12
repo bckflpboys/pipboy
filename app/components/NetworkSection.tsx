@@ -35,32 +35,19 @@ function NetworkSection() {
           </p>
           
           <div className="relative">
-            <div className="aspect-video max-w-4xl mx-auto overflow-hidden rounded-lg relative">
-              <Image
-                src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop"
-                alt="Networking Event"
-                fill
-                className="object-cover"
-                unoptimized
+            <div className="aspect-video max-w-4xl mx-auto overflow-hidden rounded-lg relative bg-gray-900">
+              <iframe
+                src="https://www.youtube.com/embed/videoseries?list=UUjhA7P9rF_5PQpIgFk3tcIQ"
+                title="Latest PIPBOY Video"
+                className="absolute top-0 left-0 w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center cursor-pointer backdrop-blur-sm"
-                >
-                  <svg 
-                    className="w-10 h-10 text-white" 
-                    fill="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </motion.div>
-              </div>
             </div>
             <div className="mt-6">
-              <Button variant="secondary">WATCH OUR LATEST EVENT</Button>
+              <a href="https://www.youtube.com/@pipboyforever" target="_blank" rel="noopener noreferrer">
+                <Button variant="secondary">VISIT OUR YOUTUBE CHANNEL</Button>
+              </a>
             </div>
           </div>
         </motion.div>

@@ -5,28 +5,28 @@ import Image from 'next/image';
 
 const partners = [
   { 
-    name: 'Shopify',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Shopify_logo_2018.svg',
-    description: 'E-commerce platform with exclusive partner rates',
-    discount: 'Up to 30% off annual plans'
+    name: 'Exness',
+    logo: 'https://tradefx.co.za/wp-content/uploads/2021/05/Exness-Logo.png',
+    description: 'Premium forex and CFD trading broker',
+    discount: 'Exclusive rebates and spreads'
   },
   { 
-    name: 'Stripe',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg',
-    description: 'Payment processing with reduced fees',
-    discount: 'Special processing rates'
+    name: 'Trive',
+    logo: 'https://framerusercontent.com/images/BsT9O9IRvBbQcq3lXWXZSeItS8.webp?scale-down-to=512',
+    description: 'Advanced multi-asset trading platform',
+    discount: 'Special account conditions'
   },
   { 
-    name: 'Fiverr',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/1/18/Fiverr_Logo_09.2020.svg',
-    description: 'Freelance services marketplace',
-    discount: '20% cashback on services'
+    name: 'FTMO',
+    logo: 'https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/f6/6f/17/f66f171e-b163-4654-cb37-65f2c0abd6f6/AppIcon-0-0-1x_U007emarketing-0-8-0-0-85-220.png/217x0w.webp',
+    description: 'Leading proprietary trading firm',
+    discount: 'Discounted challenges'
   },
   { 
-    name: 'PayPal',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg',
-    description: 'Global payment solutions',
-    discount: 'Reduced transaction fees'
+    name: 'Telegram',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg',
+    description: 'Premium trading signals and community',
+    discount: 'VIP channel access'
   }
 ];
 
@@ -69,24 +69,36 @@ function MarketplaceSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-8 hover:bg-gray-800/50 transition-all duration-300"
+              className="group bg-gray-900/30 backdrop-blur-sm rounded-xl p-8 hover:bg-gray-800/40 transition-all duration-300 border border-gray-800/50 hover:border-blue-500/30"
             >
               <div className="flex flex-col h-full">
-                <div className="relative h-12 mb-6 w-[200px]">
-                  <Image
-                    src={partner.logo}
-                    alt={`${partner.name} Logo`}
-                    width={200}
-                    height={48}
-                    className="object-contain"
-                    unoptimized
-                  />
+                <div className="flex items-center justify-start h-16 mb-6">
+                  <div className="relative w-auto h-12">
+                    <Image
+                      src={partner.logo}
+                      alt={`${partner.name} Logo`}
+                      width={120}
+                      height={48}
+                      className="object-contain h-full w-auto brightness-90 group-hover:brightness-100 transition-all duration-300"
+                      unoptimized
+                    />
+                  </div>
                 </div>
-                <div className="flex-grow">
-                  <h3 className="text-lg font-semibold mb-2">{partner.name}</h3>
-                  <p className="text-gray-400 mb-4">{partner.description}</p>
-                  <div className="bg-emerald-900/30 text-emerald-400 px-4 py-2 rounded-md inline-block text-sm">
-                    {partner.discount}
+                <div className="flex-grow space-y-4">
+                  <h3 className="text-xl font-semibold mb-2 group-hover:text-blue-400 transition-colors duration-300">{partner.name}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{partner.description}</p>
+                  <div className="pt-4">
+                    <div className="bg-emerald-900/20 border border-emerald-500/20 text-emerald-400 px-4 py-2.5 rounded-lg inline-block text-sm font-medium">
+                      {partner.discount}
+                    </div>
+                  </div>
+                  <div className="pt-6">
+                    <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
+                      Learn More 
+                      <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
