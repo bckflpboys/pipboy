@@ -31,9 +31,7 @@ function NetworkSection() {
         >
           <h2 className="text-3xl font-bold mb-6">NETW∅RK</h2>
           <p className="text-gray-400 max-w-2xl mx-auto mb-12">
-            We host private networking nights throughout major cities. After all, no productive 
-            opportunity for members to connect with like-minded entrepreneurs from all over the 
-            world should be missed.
+            Stay ahead with our daily live trading and market analyses on YouTube, in-depth trading blogs, and real-time market insights. Access premium content that turns complex market movements into actionable trading opportunities.
           </p>
           
           <div className="relative">

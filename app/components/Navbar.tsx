@@ -5,6 +5,7 @@ import Button from './Button';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import UserProfile from './UserProfile';
+import Image from 'next/image';
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -20,7 +21,13 @@ const Navbar = () => {
               href="/" 
               className="text-white text-lg sm:text-xl font-bold hover:text-blue-500 transition-colors"
             >
-              Pipboy
+              <Image 
+                src="/PIPBOY-LOGO-WHITE.png"
+                alt="Pipboy Logo"
+                width={100}
+                height={40}
+                className="object-contain"
+              />
             </Link>
           </div>
 

@@ -25,13 +25,13 @@ const HeroSection = () => {
         <h1 className="text-white text-4xl md:text-6xl font-bold max-w-4xl mx-auto leading-tight tracking-wider">
           THE F<span className="font-serif">∆</span>STEST GROWING
           <br />
-          ENTREPRENEUR
+          TRADING
           <br />
-          CLUB IN THE W<span className="font-serif">∅</span>RLD
+          C<span className="font-serif">∅</span>MMUNITY
         </h1>
         <div className="mt-8">
           <Button variant="primary" className="uppercase tracking-widest">
-            JOIN THE WAITLIST
+            JOIN US
           </Button>
         </div>
       </div>
