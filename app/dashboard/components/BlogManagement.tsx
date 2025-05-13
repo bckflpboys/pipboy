@@ -10,8 +10,10 @@ import {
   CalendarIcon,
   UserIcon,
   EllipsisVerticalIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { BLOG_CATEGORIES, type BlogCategory } from '../../utils/constants';
+import RichTextEditor from '../../components/RichTextEditor';
 
 interface BlogPost {
   id: string;
@@ -24,6 +26,7 @@ interface BlogPost {
   status: 'draft' | 'published';
   coverArt?: string;
   category: BlogCategory;
+  readTime?: number;
 }
 
 export default function BlogManagement() {
@@ -51,8 +54,16 @@ export default function BlogManagement() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [author, setAuthor] = useState('');
+  const [content, setContent] = useState('');
 
   const categories = BLOG_CATEGORIES;
+
+  const calculateReadTime = (text: string): number => {
+    // Remove HTML tags and calculate words
+    const words = text.replace(/<[^>]*>/g, '').split(/\s+/).length;
+    // Average reading speed: 200 words per minute
+    return Math.ceil(words / 200);
+  };
 
   const toggleMenu = (postId: string) => {
     setActiveMenu(activeMenu === postId ? null : postId);
@@ -119,11 +130,19 @@ export default function BlogManagement() {
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Content
               </label>
-              <textarea
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                rows={10}
-                placeholder="Write your post content here..."
+              <RichTextEditor
+                content={content}
+                onChange={(newContent) => {
+                  setContent(newContent);
+                }}
+                placeholder="Write your blog post content here..."
               />
+              {content && (
+                <div className="mt-2 flex items-center text-sm text-gray-400">
+                  <ClockIcon className="w-4 h-4 mr-1" />
+                  {calculateReadTime(content)} min read
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -261,6 +280,7 @@ export default function BlogManagement() {
                   setCoverArtUrl('');
                   setCoverArtPreview(null);
                   setSelectedCategory('');
+                  setContent('');
                 }}
                 className="w-full sm:w-auto order-3 sm:order-1 px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-gray-900/50 rounded-lg hover:bg-gray-800/50"
               >
