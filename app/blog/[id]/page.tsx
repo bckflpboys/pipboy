@@ -92,15 +92,15 @@ export default function BlogPost() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-20 relative z-10">
+      <div className="relative z-10">
         {/* Main Blog Content */}
-        <div className="max-w-4xl mx-auto">
+        <div>
           {/* Header with Cover Image */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="relative rounded-2xl overflow-hidden mb-12"
+            className="relative mb-12"
           >
             {/* Cover Image */}
             <div className="relative aspect-[21/9]">
@@ -116,57 +116,65 @@ export default function BlogPost() {
             </div>
 
             {/* Content Overlay */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-4">
-                <span className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
-                <span className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {blog.readTime} min read
-                </span>
-                <span className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {blog.author}
-                </span>
-              </div>
+            <div className="absolute inset-0">
+              <div className="container mx-auto px-4 h-full">
+                <div className="max-w-4xl mx-auto h-full flex flex-col justify-end p-6 sm:p-8">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-4">
+                    <span className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {new Date(blog.publishedAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    <span className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {blog.readTime} min read
+                    </span>
+                    <span className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      {blog.author}
+                    </span>
+                  </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-                {blog.title}
-              </h1>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+                    {blog.title}
+                  </h1>
 
-              <div className="flex flex-wrap gap-2">
-                {blog.tags?.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/50"
-                  >
-                    {tag}
-                  </span>
-                ))}
+                  <div className="flex flex-wrap gap-2">
+                    {blog.tags?.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/50"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
 
           {/* Blog Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="prose prose-invert prose-lg max-w-none prose-img:mx-auto prose-img:rounded-xl prose-img:shadow-lg prose-img:border prose-img:border-gray-800/50"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
-          />
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="prose prose-invert prose-lg max-w-none prose-img:mx-auto prose-img:rounded-xl prose-img:shadow-lg prose-img:border prose-img:border-gray-800/50"
+                dangerouslySetInnerHTML={{ __html: blog.content }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Latest Posts Section */}
