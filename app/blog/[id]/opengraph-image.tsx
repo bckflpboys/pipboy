@@ -1,6 +1,4 @@
 import { ImageResponse } from 'next/og';
-import { Blog } from '@/lib/mongodb';
-import mongoose from 'mongoose';
 
 export const runtime = 'edge';
 export const alt = 'Blog Post';
@@ -12,12 +10,9 @@ export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: { id: string } }) {
   try {
-    // Connect to MongoDB
-    if (!mongoose.connections[0].readyState) {
-      await mongoose.connect(process.env.MONGODB_URI!);
-    }
-
-    const blog = await Blog.findOne({ slug: params.id });
+    // Fetch blog data from API
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/blog/${params.id}`);
+    const { blog } = await response.json();
 
     if (!blog) {
       return new ImageResponse(
@@ -37,7 +32,8 @@ export default async function Image({ params }: { params: { id: string } }) {
           >
             Blog Post Not Found
           </div>
-        )
+        ),
+        { ...size }
       );
     }
 
@@ -195,7 +191,8 @@ export default async function Image({ params }: { params: { id: string } }) {
         >
           Error Generating Image
         </div>
-      )
+      ),
+      { ...size }
     );
   }
 }
