@@ -3,18 +3,17 @@ import { Blog } from '../../../lib/mongodb';
 import { uploadImage } from '../../../lib/cloudinary';
 import mongoose from 'mongoose';
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
+interface RouteSegmentConfig {
+  params: Promise<{ id: string }>;
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
 export async function GET(
   request: NextRequest,
-  props: Props
+  { params }: RouteSegmentConfig
 ) {
   try {
-    const { id } = props.params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
@@ -49,10 +48,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  props: Props
+  { params }: RouteSegmentConfig
 ) {
   try {
-    const { id } = props.params;
+    const { id } = await params;
     const data = await request.json();
 
     if (!id) {
@@ -108,10 +107,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  props: Props
+  { params }: RouteSegmentConfig
 ) {
   try {
-    const { id } = props.params;
+    const { id } = await params;
     
     if (!id) {
       return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
