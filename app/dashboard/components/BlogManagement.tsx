@@ -11,6 +11,7 @@ import {
   UserIcon,
   EllipsisVerticalIcon,
 } from '@heroicons/react/24/outline';
+import { BLOG_CATEGORIES, type BlogCategory } from '../../utils/constants';
 
 interface BlogPost {
   id: string;
@@ -21,6 +22,8 @@ interface BlogPost {
   tags: string[];
   publishedAt: string;
   status: 'draft' | 'published';
+  coverArt?: string;
+  category: BlogCategory;
 }
 
 export default function BlogManagement() {
@@ -36,9 +39,17 @@ export default function BlogManagement() {
       tags: ['Web Development', 'Beginners'],
       publishedAt: '2024-04-28',
       status: 'published',
+      coverArt: 'https://example.com/placeholder.jpg',
+      category: 'Web Development',
     },
     // Add more dummy posts as needed
   ]);
+
+  const [coverArtUrl, setCoverArtUrl] = useState('');
+  const [coverArtPreview, setCoverArtPreview] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<BlogCategory | ''>('');
+
+  const categories = BLOG_CATEGORIES;
 
   const toggleMenu = (postId: string) => {
     setActiveMenu(activeMenu === postId ? null : postId);
@@ -107,6 +118,87 @@ export default function BlogManagement() {
                 placeholder="Enter tags separated by commas"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Category
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value as BlogCategory)}
+                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Cover Art
+              </label>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={coverArtUrl}
+                  onChange={(e) => {
+                    setCoverArtUrl(e.target.value);
+                    setCoverArtPreview(e.target.value);
+                  }}
+                  className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                  placeholder="Enter cover art URL"
+                />
+                <div className="flex items-center">
+                  <span className="text-gray-400 text-sm mr-3">Or upload an image:</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const imageUrl = URL.createObjectURL(file);
+                        setCoverArtPreview(imageUrl);
+                        setCoverArtUrl('');
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-400
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-medium
+                    file:bg-blue-600 file:text-white
+                    hover:file:bg-blue-500
+                    file:cursor-pointer cursor-pointer"
+                  />
+                </div>
+                {coverArtPreview && (
+                  <div className="relative">
+                    <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={coverArtPreview}
+                        alt="Cover art preview"
+                        className="w-full h-full object-cover"
+                        onError={() => setCoverArtPreview(null)}
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCoverArtPreview(null);
+                        setCoverArtUrl('');
+                      }}
+                      className="absolute top-2 right-2 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white"
+                      title="Remove cover art"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
               <button
                 onClick={() => setIsCreating(false)}
@@ -137,10 +229,12 @@ export default function BlogManagement() {
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               <div className="flex-1 space-y-2 sm:space-y-4">
                 <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-medium text-white">
-                    {post.title}
-                  </h3>
-                  
+                  <div>
+                    <h3 className="text-lg font-medium text-white">
+                      {post.title}
+                    </h3>
+                    <span className="text-sm text-blue-400">{post.category}</span>
+                  </div>
                   {/* Desktop Actions */}
                   <div className="hidden sm:flex items-start gap-2">
                     <button 
