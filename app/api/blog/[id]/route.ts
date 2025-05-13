@@ -4,12 +4,15 @@ import { uploadImage } from '../../../lib/cloudinary';
 import mongoose from 'mongoose';
 
 export async function GET(
-  req: NextRequest,
+  request: NextRequest,
   context: { params: { id: string } }
 ) {
   try {
-    // In Next.js 13+, we need to await params
-    const { id } = await context.params;
+    const { id } = context.params;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
+    }
     
     // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
@@ -39,13 +42,17 @@ export async function GET(
 }
 
 export async function PUT(
-  req: NextRequest,
+  request: NextRequest,
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params;
-    const data = await req.json();
+    const { id } = context.params;
+    const data = await request.json();
 
+    if (!id) {
+      return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
+    }
+    
     // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(process.env.MONGODB_URI!, {
@@ -94,11 +101,15 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: NextRequest,
+  request: NextRequest,
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params;
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
+    }
     
     // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {

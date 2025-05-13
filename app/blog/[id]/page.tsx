@@ -11,7 +11,7 @@ export default function BlogPost() {
   const params = useParams();
   const router = useRouter();
   const [blog, setBlog] = useState<BlogPost | null>(null);
-  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
+  const [latestBlogs, setLatestBlogs] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,17 +23,16 @@ export default function BlogPost() {
           throw new Error('Blog post not found');
         }
         const data = await response.json();
-        console.log('Blog data:', data); // Debug log
         setBlog(data);
 
-        // Fetch related posts
-        const relatedResponse = await fetch('/api/blog');
-        if (relatedResponse.ok) {
-          const allPosts = await relatedResponse.json();
-          const related = allPosts
+        // Fetch latest posts
+        const latestResponse = await fetch('/api/blog');
+        if (latestResponse.ok) {
+          const allPosts = await latestResponse.json();
+          const latest = allPosts
             .filter((post: BlogPost) => post._id !== data._id)
-            .slice(0, 2);
-          setRelatedPosts(related);
+            .slice(0, 4);
+          setLatestBlogs(latest);
         }
       } catch (error) {
         console.error('Error fetching blog:', error);
@@ -94,82 +93,98 @@ export default function BlogPost() {
       </div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
-        {/* Header */}
-        <div className="max-w-4xl mx-auto mb-16">
-          <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
-            <span className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              {new Date(blog.publishedAt).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-              })}
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {blog.readTime} min read
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              {blog.author}
-            </span>
-          </div>
-
-          <motion.h1
+        {/* Main Blog Content */}
+        <div className="max-w-4xl mx-auto mb-20">
+          {/* Header */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400"
+            className="mb-12"
           >
-            {blog.title}
-          </motion.h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-6">
+              <span className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {new Date(blog.publishedAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {blog.readTime} min read
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                {blog.author}
+              </span>
+              <span className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/50">
+                {blog.category}
+              </span>
+            </div>
 
-          {blog.coverArt && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative h-[400px] rounded-2xl overflow-hidden mb-12"
-            >
-              <Image
-                src={blog.coverArt}
-                alt={blog.title}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </motion.div>
-          )}
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">{blog.title}</h1>
+            
+            {blog.excerpt && (
+              <p className="text-xl text-gray-400 leading-relaxed">{blog.excerpt}</p>
+            )}
+          </motion.div>
+
+          {/* Cover Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative aspect-video rounded-xl overflow-hidden mb-12 border border-gray-800/50"
+          >
+            <Image
+              src={blog.coverArt || '/images/default-blog-cover.jpg'}
+              alt={blog.title}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </motion.div>
+
+          {/* Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="prose prose-invert prose-lg max-w-none"
+            dangerouslySetInnerHTML={{ __html: blog.content }}
+          />
         </div>
 
-        {/* Content */}
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="prose prose-invert prose-lg max-w-4xl mx-auto mb-20"
-          dangerouslySetInnerHTML={{ __html: blog.content }}
-        />
+        {/* Latest Posts Section */}
+        {latestBlogs.length > 0 && (
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl font-bold mb-4">Latest Posts</h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto"></div>
+            </motion.div>
 
-        {/* Related Posts */}
-        {relatedPosts.length > 0 && (
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8">Related Posts</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {relatedPosts.map((post, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {latestBlogs.map((post, index) => (
                 <motion.article
                   key={post._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
                   className="group bg-gray-900/30 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300"
                 >
                   <Link href={`/blog/${post._id}`}>
@@ -188,13 +203,32 @@ export default function BlogPost() {
                         </span>
                       </div>
                     </div>
+                    
                     <div className="p-6">
-                      <h3 className="text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors duration-300">
+                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                        <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { 
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}</span>
+                        <span>•</span>
+                        <span>{post.readTime} min read</span>
+                      </div>
+                      
+                      <h3 className="text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors duration-300 line-clamp-2">
                         {post.title}
                       </h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">
+                      
+                      <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-3">
                         {post.excerpt}
                       </p>
+                      
+                      <div className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
+                        Read More 
+                        <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </div>
                     </div>
                   </Link>
                 </motion.article>
