@@ -5,9 +5,12 @@ import mongoose from 'mongoose';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    // In Next.js 13+, we need to await params
+    const { id } = await context.params;
+    
     // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(process.env.MONGODB_URI!, {
@@ -16,7 +19,7 @@ export async function GET(
       });
     }
 
-    const blog = await Blog.findById(params.id).select('-__v');
+    const blog = await Blog.findById(id).select('-__v');
     
     if (!blog) {
       return NextResponse.json(
@@ -29,7 +32,7 @@ export async function GET(
   } catch (error: unknown) {
     console.error('Error fetching blog:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error fetching blog post' },
+      { error: 'Failed to fetch blog post' },
       { status: 500 }
     );
   }
@@ -37,9 +40,12 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = await context.params;
+    const data = await req.json();
+
     // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(process.env.MONGODB_URI!, {
@@ -48,12 +54,9 @@ export async function PUT(
       });
     }
 
-    const data = await req.json();
-    const blogId = params.id;
-
     // Handle cover art if changed
     if (data.coverArt && data.coverArt.startsWith('data:')) {
-      data.coverArt = await uploadImage(data.coverArt, blogId, 'cover');
+      data.coverArt = await uploadImage(data.coverArt, id, 'cover');
     }
 
     // Process content to handle any new base64 images
@@ -62,13 +65,13 @@ export async function PUT(
       const matches = data.content.match(regex) || [];
 
       for (const match of matches) {
-        const imageUrl = await uploadImage(match, blogId, 'content');
+        const imageUrl = await uploadImage(match, id, 'content');
         data.content = data.content.replace(match, imageUrl);
       }
     }
 
     const blog = await Blog.findByIdAndUpdate(
-      blogId,
+      id,
       { $set: data },
       { new: true }
     ).select('-__v');
@@ -84,7 +87,7 @@ export async function PUT(
   } catch (error: unknown) {
     console.error('Error updating blog:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error updating blog post' },
+      { error: 'Failed to update blog post' },
       { status: 500 }
     );
   }
@@ -92,9 +95,11 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = await context.params;
+    
     // Ensure MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
       await mongoose.connect(process.env.MONGODB_URI!, {
@@ -103,7 +108,7 @@ export async function DELETE(
       });
     }
 
-    const blog = await Blog.findByIdAndDelete(params.id);
+    const blog = await Blog.findByIdAndDelete(id);
 
     if (!blog) {
       return NextResponse.json(
@@ -116,7 +121,7 @@ export async function DELETE(
   } catch (error: unknown) {
     console.error('Error deleting blog:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error deleting blog post' },
+      { error: 'Failed to delete blog post' },
       { status: 500 }
     );
   }
