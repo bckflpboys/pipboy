@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   PlusIcon,
   PencilIcon,
@@ -12,7 +13,10 @@ import {
   EllipsisVerticalIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
-import { BLOG_CATEGORIES, type BlogCategory } from '../../utils/constants';
+import {
+  BLOG_CATEGORIES,
+  type BlogCategory,
+} from '../../utils/constants';
 import RichTextEditor from '../../components/RichTextEditor';
 import { BlogPost } from '../../../types/blog';
 import { nanoid } from 'nanoid';
@@ -377,10 +381,12 @@ export default function BlogManagement() {
                 
                 {coverArtPreview && (
                   <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={coverArtPreview}
                       alt="Cover art preview"
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 640px) 100vw, 288px"
+                      className="object-cover"
                     />
                     <button
                       type="button"
@@ -420,104 +426,135 @@ export default function BlogManagement() {
       )}
 
       {/* Blog Posts List */}
-      <div className="grid gap-4 sm:gap-6">
+      <div className="grid gap-6">
         {blogs.map((blog) => (
           <motion.div
             key={blog._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-4 sm:p-6"
+            className="group bg-black/50 backdrop-blur-lg border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-all duration-300"
           >
-            <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-              <div className="flex-1 space-y-2 sm:space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium text-white">
-                      {blog.title}
-                    </h3>
-                    <span className="text-sm text-blue-400">{blog.category}</span>
-                  </div>
-                  {/* Desktop Actions */}
-                  <div className="hidden sm:flex items-start gap-2">
-                    <button 
-                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
-                      title="Edit post"
-                    >
-                      <PencilIcon className="w-5 h-5" />
-                    </button>
-                    <button 
-                      onClick={() => blog._id && handleDelete(blog._id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
-                      title="Delete post"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
+            <div className="flex flex-col sm:flex-row min-h-[200px]">
+              {/* Cover Image */}
+              {blog.coverArt && (
+                <div className="relative w-full sm:w-72 h-48 sm:h-auto overflow-hidden">
+                  <Image
+                    src={blog.coverArt}
+                    alt={`Cover for ${blog.title}`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 288px"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent sm:bg-gradient-to-l" />
+                </div>
+              )}
+              <div className="flex-1 p-4 sm:p-6">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="px-2.5 py-0.5 text-xs font-medium bg-blue-500/10 text-blue-400 rounded-full">
+                          {blog.category}
+                        </span>
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <ClockIcon className="w-3.5 h-3.5" />
+                          {calculateReadTime(blog.content)} min read
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
+                        {blog.title}
+                      </h3>
+                    </div>
+                    {/* Desktop Actions */}
+                    <div className="hidden sm:flex items-start gap-2">
+                      <button 
+                        className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                        title="Edit post"
+                      >
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => blog._id && handleDelete(blog._id)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-white/5 rounded-lg transition-colors"
+                        title="Delete post"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Mobile Actions */}
+                    <div className="sm:hidden">
+                      <button
+                        onClick={() => blog._id && toggleMenu(blog._id)}
+                        className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                      >
+                        <EllipsisVerticalIcon className="w-5 h-5" />
+                      </button>
+
+                      {activeMenu === blog._id && (
+                        <div className="absolute right-4 mt-2 w-48 rounded-lg bg-gray-900 shadow-lg ring-1 ring-gray-800 z-10">
+                          <div className="py-1">
+                            <button
+                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800"
+                              onClick={() => {
+                                // Handle edit
+                                toggleMenu(blog._id || '');
+                              }}
+                            >
+                              <PencilIcon className="w-4 h-4" />
+                              Edit post
+                            </button>
+                            <button
+                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800"
+                              onClick={() => {
+                                if (blog._id) handleDelete(blog._id);
+                                toggleMenu(blog._id || '');
+                              }}
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                              Delete post
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Mobile Actions */}
-                  <div className="sm:hidden">
-                    <button
-                      onClick={() => blog._id && toggleMenu(blog._id)}
-                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
-                    >
-                      <EllipsisVerticalIcon className="w-5 h-5" />
-                    </button>
+                  <p className="text-gray-400 text-sm line-clamp-2 mb-4">
+                    {blog.excerpt}
+                  </p>
 
-                    {activeMenu === blog._id && (
-                      <div className="absolute right-4 mt-2 w-48 rounded-lg bg-gray-900 shadow-lg ring-1 ring-gray-800 z-10">
-                        <div className="py-1">
-                          <button
-                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800"
-                            onClick={() => {
-                              // Handle edit
-                              toggleMenu(blog._id || '');
-                            }}
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                            Edit post
-                          </button>
-                          <button
-                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800"
-                            onClick={() => {
-                              if (blog._id) handleDelete(blog._id);
-                              toggleMenu(blog._id || '');
-                            }}
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                            Delete post
-                          </button>
+                  <div className="mt-auto pt-4 border-t border-gray-800">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                      <div className="flex items-center gap-1.5">
+                        <UserIcon className="w-4 h-4" />
+                        {blog.author}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <CalendarIcon className="w-4 h-4" />
+                        {new Date(blog.publishedAt || blog.createdAt || Date.now()).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <TagIcon className="w-4 h-4" />
+                        <div className="flex items-center gap-1">
+                          {blog.tags.slice(0, 2).map((tag, index) => (
+                            <span key={index} className="px-2 py-0.5 text-xs bg-gray-800 rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                          {blog.tags.length > 2 && (
+                            <span className="text-xs text-gray-500">
+                              +{blog.tags.length - 2}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-
-                <p className="text-gray-400 text-sm">
-                  {blog.excerpt}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
-                  <div className="flex items-center gap-1">
-                    <UserIcon className="w-4 h-4" />
-                    <span className="truncate">{blog.author}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <CalendarIcon className="w-4 h-4" />
-                    <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1 max-w-full">
-                    <TagIcon className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">{blog.tags.join(', ')}</span>
-                  </div>
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      blog.status === 'published'
-                        ? 'bg-green-500/10 text-green-500'
-                        : 'bg-yellow-500/10 text-yellow-500'
-                    }`}
-                  >
-                    {blog.status}
-                  </span>
                 </div>
               </div>
             </div>
