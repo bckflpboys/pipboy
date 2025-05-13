@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   PlusIcon,
   PencilIcon,
@@ -461,9 +462,14 @@ export default function BlogManagement() {
                           {calculateReadTime(blog.content)} min read
                         </span>
                       </div>
-                      <h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
-                        {blog.title}
-                      </h3>
+                      <Link 
+                        href={`/blog/${blog._id}`}
+                        className="block group/title"
+                      >
+                        <h3 className="text-xl font-semibold text-white group-hover/title:text-blue-400 transition-colors">
+                          {blog.title}
+                        </h3>
+                      </Link>
                     </div>
                     {/* Desktop Actions */}
                     <div className="hidden sm:flex items-start gap-2">
