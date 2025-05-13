@@ -27,7 +27,7 @@ export async function GET(
       });
     }
 
-    const blog = await Blog.findById(id).select('-__v');
+    const blog = await Blog.findOne({ slug: id }).select('-__v');
     
     if (!blog) {
       return NextResponse.json(

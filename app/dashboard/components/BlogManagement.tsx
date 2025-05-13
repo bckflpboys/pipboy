@@ -87,9 +87,18 @@ export default function BlogManagement() {
     });
   };
 
+  const handleCoverArtUrlChange = (url: string) => {
+    setCoverArtUrl(url);
+    setCoverArtPreview(url || null);
+  };
+
   const handleCoverArtChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setCoverArtPreview(null);
+      setCoverArtUrl('');
+      return;
+    }
 
     try {
       const objectUrl = URL.createObjectURL(file);
@@ -99,12 +108,8 @@ export default function BlogManagement() {
     } catch (error: unknown) {
       toast.error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setCoverArtPreview(null);
+      setCoverArtUrl('');
     }
-  };
-
-  const handleCoverArtUrlChange = (url: string) => {
-    setCoverArtUrl(url);
-    setCoverArtPreview(url);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -366,18 +371,20 @@ export default function BlogManagement() {
                 {isUrlInput ? (
                   <input
                     type="url"
-                    value={coverArtUrl || ''}
+                    value={coverArtUrl}
                     onChange={(e) => handleCoverArtUrlChange(e.target.value)}
                     className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                     placeholder="Enter image URL"
                   />
                 ) : (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverArtChange}
-                    className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500"
-                  />
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverArtChange}
+                      className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500"
+                    />
+                  </div>
                 )}
                 
                 {coverArtPreview && (
@@ -463,10 +470,10 @@ export default function BlogManagement() {
                         </span>
                       </div>
                       <Link 
-                        href={`/blog/${blog._id}`}
-                        className="block group/title"
+                        href={`/blog/${blog.slug}`}
+                        className="inline-block group-hover:text-blue-500 transition-colors"
                       >
-                        <h3 className="text-xl font-semibold text-white group-hover/title:text-blue-400 transition-colors">
+                        <h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
                           {blog.title}
                         </h3>
                       </Link>

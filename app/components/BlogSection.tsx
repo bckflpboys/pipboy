@@ -69,14 +69,14 @@ function BlogSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogs.map((post, index) => (
               <motion.article
-                key={post._id}
+                key={post.slug}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="group bg-gray-900/30 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300"
               >
-                <Link href={`/blog/${post._id}`}>
+                <Link href={`/blog/${post.slug}`}>
                   <div className="relative h-48 overflow-hidden">
                     <Image
                       src={post.coverArt || '/images/default-blog-cover.jpg'}
