@@ -48,11 +48,28 @@ export default function BlogManagement() {
   const [coverArtUrl, setCoverArtUrl] = useState('');
   const [coverArtPreview, setCoverArtPreview] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | ''>('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
+  const [author, setAuthor] = useState('');
 
   const categories = BLOG_CATEGORIES;
 
   const toggleMenu = (postId: string) => {
     setActiveMenu(activeMenu === postId ? null : postId);
+  };
+
+  const handleTagInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!tags.includes(tagInput.trim())) {
+        setTags([...tags, tagInput.trim()]);
+      }
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
   return (
@@ -110,13 +127,48 @@ export default function BlogManagement() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
+                Author
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <UserIcon className="h-5 w-5 text-gray-500" />
+                </div>
+                <input
+                  type="text"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  className="w-full bg-gray-900/50 border border-gray-800 rounded-lg pl-10 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                  placeholder="Enter author name"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Tags
               </label>
-              <input
-                type="text"
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                placeholder="Enter tags separated by commas"
-              />
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <div key={index} className="bg-gray-900/50 rounded-lg px-2 py-1 text-sm text-white flex items-center gap-1">
+                    <span>{tag}</span>
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="p-1 text-gray-400 hover:text-red-500 rounded-full transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagInput}
+                  className="w-full bg-gray-900/50 border border-gray-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                  placeholder="Enter tags separated by commas"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -201,7 +253,15 @@ export default function BlogManagement() {
             </div>
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
               <button
-                onClick={() => setIsCreating(false)}
+                onClick={() => {
+                  setIsCreating(false);
+                  setAuthor('');
+                  setTags([]);
+                  setTagInput('');
+                  setCoverArtUrl('');
+                  setCoverArtPreview(null);
+                  setSelectedCategory('');
+                }}
                 className="w-full sm:w-auto order-3 sm:order-1 px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-gray-900/50 rounded-lg hover:bg-gray-800/50"
               >
                 Cancel
