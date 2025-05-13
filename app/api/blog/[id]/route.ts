@@ -5,10 +5,10 @@ import mongoose from 'mongoose';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
 
     if (!id) {
       return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
@@ -43,10 +43,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
     const data = await request.json();
 
     if (!id) {
@@ -102,10 +102,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
     
     if (!id) {
       return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
