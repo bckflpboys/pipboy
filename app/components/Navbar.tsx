@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Button from './Button';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UserProfile from './UserProfile';
 import Image from 'next/image';
 
@@ -12,7 +12,20 @@ const Navbar = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPbSubdomain, setIsPbSubdomain] = useState(false);
+  
+  // Check if we're on the PB subdomain
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    const isPbDomain = hostname.startsWith('pb.') || hostname === 'pb.localhost';
+    setIsPbSubdomain(isPbDomain);
+  }, []);
 
+  // Don't render the navbar at all when on pb subdomain
+  if (isPbSubdomain) {
+    return null;
+  }
+  
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
       <div className="max-w-5xl mx-auto">
@@ -48,15 +61,17 @@ const Navbar = () => {
             >
               Resources
             </Link>
-            <Link 
-              href="/pb-chat" 
+            <a 
+              href="http://pb.localhost:3000" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
             >
               <span className="flex items-center">
                 <span className="mr-1.5 text-blue-400">🤖</span>
                 PB Chat Bot
               </span>
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -118,8 +133,10 @@ const Navbar = () => {
           >
             Resources
           </Link>
-          <Link 
-            href="/pb-chat" 
+          <a 
+            href="http://pb.localhost:3000" 
+            target="_blank"
+            rel="noopener noreferrer"
             className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >
@@ -127,7 +144,7 @@ const Navbar = () => {
               <span className="mr-1.5 text-blue-400">🤖</span>
               PB Chat Bot
             </span>
-          </Link>
+          </a>
         </div>
         </div>
       </div>

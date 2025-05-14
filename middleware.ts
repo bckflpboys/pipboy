@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "next-auth/middleware";
 import { UserRole } from "@/models/User";
 
-// Simple middleware to handle subdomain routing
+// Enhanced middleware to handle subdomain routing
 export function middleware(req: NextRequest) {
   // Check for subdomain
   const hostname = req.headers.get('host') || ''
@@ -10,9 +10,24 @@ export function middleware(req: NextRequest) {
   
   // Handle PB subdomain requests
   if (isPbSubdomain) {
-    // Use redirect instead of rewrite to ensure proper CSS loading
-    const url = new URL('/pb-chat', req.url);
-    return NextResponse.redirect(url);
+    // Extract the pathname from the request URL
+    const { pathname } = req.nextUrl;
+    
+    // Don't rewrite static asset requests to ensure styles load properly
+    if (
+      pathname.startsWith('/_next/') || 
+      pathname.includes('.') ||     // Files with extensions (css, js, etc.)
+      pathname.startsWith('/pb-chat')
+    ) {
+      return NextResponse.next();
+    }
+    
+    // Create a new URL for rewriting to the pb-chat route
+    const url = new URL('/pb-chat' + (pathname === '/' ? '' : pathname), req.url);
+    
+    // Use rewrite to keep the original URL in the browser but serve the content from the pb-chat route
+    // This ensures the dedicated pb-chat layout is used without the main Navbar
+    return NextResponse.rewrite(url);
   }
   
   // For non-dashboard routes, just continue

@@ -8,6 +8,9 @@ import ChatHeader from './components/ChatHeader';
 import ChatSidebar from './components/ChatSidebar';
 import '../globals.css';
 
+// CSS classes are now handled by Tailwind directly
+// No need for inline styles that can cause hydration issues
+
 // Message type definition
 interface Message {
   id: string;
@@ -46,6 +49,7 @@ const sampleResponses = [
 ];
 
 export default function PBChatPage() {
+  // No need to add inline styles anymore - using Tailwind classes directly
   const [messages, setMessages] = useState<Message[]>(welcomeMessages);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
