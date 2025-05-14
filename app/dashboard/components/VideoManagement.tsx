@@ -14,12 +14,15 @@ import {
   DocumentArrowDownIcon,
   PlayCircleIcon
 } from '@heroicons/react/24/outline';
+import CreateCourseForm from './CreateCourseForm';
+import ChapterManager from './ChapterManager';
 import type { Course, Chapter, Video, Resource } from '../../models/Course';
 
 interface CourseCardProps {
   course: Course;
   onExpand: (courseId: string) => void;
   onChapterExpand: (chapterId: string) => void;
+  onManageChapters: (courseId: string) => void;
   isExpanded: boolean;
   expandedChapterId: string | null;
 }
@@ -41,7 +44,7 @@ function ResourceIcon({ type }: { type: Resource['type'] }) {
   }
 }
 
-function CourseCard({ course, onExpand, onChapterExpand, isExpanded, expandedChapterId }: CourseCardProps) {
+function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExpanded, expandedChapterId }: CourseCardProps) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -69,16 +72,25 @@ function CourseCard({ course, onExpand, onChapterExpand, isExpanded, expandedCha
               </span>
             </div>
           </div>
-          <button
-            onClick={() => onExpand(course.id)}
-            className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
-          >
-            {isExpanded ? (
-              <ChevronUpIcon className="w-5 h-5" />
-            ) : (
-              <ChevronDownIcon className="w-5 h-5" />
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onManageChapters(course.id)}
+              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              title="Manage Chapters"
+            >
+              <PencilIcon className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => onExpand(course.id)}
+              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              {isExpanded ? (
+                <ChevronUpIcon className="w-5 h-5" />
+              ) : (
+                <ChevronDownIcon className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
       
@@ -207,7 +219,10 @@ function ChapterCard({ chapter, onExpand, isExpanded }: ChapterCardProps) {
 export default function VideoManagement() {
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
   const [expandedChapterId, setExpandedChapterId] = useState<string | null>(null);
-  const [courses] = useState<Course[]>([
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [isChapterManagerOpen, setIsChapterManagerOpen] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([
     {
       id: '1',
       title: 'Complete React Developer Course',
@@ -306,6 +321,7 @@ export default function VideoManagement() {
         </h2>
         <button
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          onClick={() => setIsCreateModalOpen(true)}
         >
           <PlusIcon className="w-5 h-5" />
           New Course
@@ -319,11 +335,64 @@ export default function VideoManagement() {
             course={course}
             onExpand={handleCourseExpand}
             onChapterExpand={handleChapterExpand}
+            onManageChapters={(courseId) => {
+              setSelectedCourseId(courseId);
+              setIsChapterManagerOpen(true);
+            }}
             isExpanded={expandedCourseId === course.id}
             expandedChapterId={expandedChapterId}
           />
         ))}
       </div>
+
+      {isCreateModalOpen && (
+        <CreateCourseForm
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={async (courseData) => {
+            // Here you would typically make an API call to create the course
+            // For now, we'll just add it to the local state
+            const newCourse: Course = {
+              ...courseData,
+              id: `course-${Date.now()}`,
+              chapters: [],
+              totalVideos: 0,
+              totalDuration: '0h 0m'
+            };
+            setCourses(prev => [newCourse, ...prev]);
+          }}
+        />
+      )}
+
+      {isChapterManagerOpen && selectedCourseId && (
+        <ChapterManager
+          courseId={selectedCourseId}
+          initialChapters={courses.find(c => c.id === selectedCourseId)?.chapters}
+          onClose={() => {
+            setIsChapterManagerOpen(false);
+            setSelectedCourseId(null);
+          }}
+          onSave={async (chapters: Chapter[]) => {
+            // Here you would typically make an API call to update the course chapters
+            // For now, we'll just update the local state
+            setCourses(prev => prev.map(course => 
+              course.id === selectedCourseId
+                ? {
+                    ...course,
+                    chapters,
+                    totalVideos: chapters.reduce((total: number, chapter: Chapter) => total + chapter.videos.length, 0),
+                    totalDuration: chapters.reduce((total: number, chapter: Chapter) => {
+                      const minutes = chapter.videos.reduce((totalMins: number, video) => {
+                        const [mins, secs] = video.duration.split(':').map(Number);
+                        return totalMins + mins + Math.floor(secs / 60);
+                      }, 0);
+                      return total + minutes;
+                    }, 0) + 'm'
+                  }
+                : course
+            ));
+          }}
+        />
+      )}
     </div>
   );
 }
