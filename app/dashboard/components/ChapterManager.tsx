@@ -5,27 +5,28 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import {
   XMarkIcon,
-  PhotoIcon,
   ArrowUpTrayIcon,
   PlusIcon,
   DocumentArrowUpIcon,
   LinkIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import type { Chapter, Video, Resource } from '../../models/Course';
+import type { Chapter, Resource } from '../../models/Course';
 
 interface ChapterManagerProps {
   courseId: string;
   onClose: () => void;
-  onSave: (chapters: Chapter[]) => void;
+  onSave: (formData: FormData) => Promise<void>;
   initialChapters?: Chapter[];
 }
 
 interface VideoUpload {
   file: File;
   previewUrl: string;
+  thumbnailFile?: File;
   title: string;
   description: string;
+  duration?: string;
 }
 
 interface ResourceUpload {
@@ -36,7 +37,7 @@ interface ResourceUpload {
   size?: string;
 }
 
-export default function ChapterManager({ courseId, onClose, onSave, initialChapters = [] }: ChapterManagerProps) {
+export default function ChapterManager({ onClose, onSave, initialChapters = [] }: ChapterManagerProps) {
   const [chapters, setChapters] = useState<(Omit<Chapter, 'id'> & { id?: string })[]>(
     initialChapters.length > 0 ? initialChapters : [{ 
       title: '', 
@@ -115,31 +116,47 @@ export default function ChapterManager({ courseId, onClose, onSave, initialChapt
     setIsSubmitting(true);
 
     try {
-      // Here you would typically:
-      // 1. Upload all video files to your storage
-      // 2. Upload all resource files to your storage
-      // 3. Get back the URLs for each uploaded file
-      // 4. Create the chapters with the video and resource data
+      const formData = new FormData();
+      
+      // Add chapter data and files
+      const chaptersData = chapters.map((chapter, index) => {
+        const chapterVideos = (videoUploads[index] || []).map((upload, vIndex) => {
+          // Add video file to formData
+          formData.append(`video_${index}_${vIndex}`, upload.file);
+          
+          // Add thumbnail file to formData if it exists
+          if (upload.thumbnailFile) {
+            formData.append(`thumbnail_${index}_${vIndex}`, upload.thumbnailFile);
+          }
 
-      // For now, we'll simulate this with dummy URLs
-      const processedChapters = chapters.map((chapter, index) => {
-        const chapterVideos = (videoUploads[index] || []).map((upload, vIndex) => ({
-          id: `video-${Date.now()}-${vIndex}`,
-          title: upload.title,
-          description: upload.description,
-          url: 'https://example.com/video.mp4', // Replace with actual upload URL
-          thumbnail: upload.previewUrl,
-          duration: '10:00', // You'd get this from the video metadata
-          order: vIndex + 1
-        }));
+          return {
+            id: `video-${Date.now()}-${vIndex}`,
+            title: upload.title,
+            description: upload.description,
+            file: `video_${index}_${vIndex}`, // Reference to the file in formData
+            thumbnailFile: upload.thumbnailFile ? `thumbnail_${index}_${vIndex}` : undefined,
+            url: undefined, // Will be set by the API after upload
+            thumbnail: upload.previewUrl, // Current preview, will be replaced by API
+            duration: upload.duration || '10:00',
+            order: vIndex + 1
+          };
+        });
 
-        const chapterResources = (resourceUploads[index] || []).map((upload, rIndex) => ({
-          id: `resource-${Date.now()}-${rIndex}`,
-          title: upload.title,
-          type: upload.type,
-          url: upload.type === 'link' ? upload.url : 'https://example.com/resource', // Replace with actual upload URL
-          size: upload.size
-        }));
+        const chapterResources = (resourceUploads[index] || []).map((upload, rIndex) => {
+          // Add resource file to formData if it's a file type
+          if (upload.type === 'file' && upload.file instanceof File) {
+            formData.append(`resource_${index}_${rIndex}`, upload.file);
+          }
+
+          return {
+            id: `resource-${Date.now()}-${rIndex}`,
+            title: upload.title,
+            type: upload.type,
+            file: upload.file ? `resource_${index}_${rIndex}` : undefined,
+            url: upload.type === 'link' ? upload.url : undefined, // Only keep URL for link type
+            size: upload.size
+          };
+        });
 
         return {
           id: chapter.id || `chapter-${Date.now()}-${index}`,
@@ -151,7 +168,10 @@ export default function ChapterManager({ courseId, onClose, onSave, initialChapt
         };
       });
 
-      await onSave(processedChapters as Chapter[]);
+      // Add chapters data to formData
+      formData.append('chaptersData', JSON.stringify(chaptersData));
+
+      await onSave(formData);
       onClose();
     } catch (error) {
       console.error('Error saving chapters:', error);
@@ -267,7 +287,7 @@ export default function ChapterManager({ courseId, onClose, onSave, initialChapt
 
                 <div className="grid grid-cols-2 gap-4">
                   {/* Existing Videos */}
-                  {chapters[activeChapterIndex]?.videos?.map((video, index) => (
+                  {chapters[activeChapterIndex]?.videos?.map((video) => (
                     <div
                       key={video.id}
                       className="bg-gray-800/50 rounded-lg overflow-hidden"
@@ -367,7 +387,7 @@ export default function ChapterManager({ courseId, onClose, onSave, initialChapt
 
                 <div className="space-y-2">
                   {/* Existing Resources */}
-                  {chapters[activeChapterIndex]?.resources?.map((resource, index) => (
+                  {chapters[activeChapterIndex]?.resources?.map((resource) => (
                     <div
                       key={resource.id}
                       className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import {
@@ -140,16 +140,24 @@ function ChapterCard({ chapter, onExpand, isExpanded }: ChapterCardProps) {
                 key={video.id}
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors group"
               >
-                <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800">
-                  <Image
-                    src={video.thumbnail}
-                    alt={video.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <PlayCircleIcon className="w-8 h-8 text-white" />
-                  </div>
+                <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800 bg-gray-900">
+                  {video.thumbnail ? (
+                    <>
+                      <Image
+                        src={video.thumbnail}
+                        alt={video.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <PlayCircleIcon className="w-8 h-8 text-white" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <PlayCircleIcon className="w-8 h-8 text-gray-600" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h5 className="text-sm font-medium text-white truncate">{video.title}</h5>
@@ -222,88 +230,35 @@ export default function VideoManagement() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [isChapterManagerOpen, setIsChapterManagerOpen] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([
-    {
-      id: '1',
-      title: 'Complete React Developer Course',
-      description: 'Master React.js from the ground up. Learn hooks, context, Redux, and more with practical projects.',
-      thumbnail: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2',
-      totalVideos: 45,
-      totalDuration: '12h 30m',
-      createdAt: '2024-04-28',
-      updatedAt: '2024-05-14',
-      status: 'published',
-      chapters: [
-        {
-          id: 'ch1',
-          title: 'Introduction to React',
-          description: 'Get started with React fundamentals',
-          order: 1,
-          videos: [
-            {
-              id: 'v1',
-              title: 'What is React?',
-              description: 'Introduction to React and its core concepts',
-              url: 'https://example.com/video1.mp4',
-              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
-              duration: '10:30',
-              order: 1
-            },
-            {
-              id: 'v2',
-              title: 'Setting Up Your Environment',
-              description: 'Configure your development environment',
-              url: 'https://example.com/video2.mp4',
-              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
-              duration: '15:45',
-              order: 2
-            }
-          ],
-          resources: [
-            {
-              id: 'r1',
-              title: 'React Cheat Sheet',
-              type: 'pdf',
-              url: 'https://example.com/react-cheatsheet.pdf',
-              size: '2.5 MB'
-            },
-            {
-              id: 'r2',
-              title: 'React Documentation',
-              type: 'link',
-              url: 'https://react.dev'
-            }
-          ]
-        },
-        {
-          id: 'ch2',
-          title: 'React Hooks',
-          description: 'Deep dive into React Hooks',
-          order: 2,
-          videos: [
-            {
-              id: 'v3',
-              title: 'useState Hook',
-              description: 'Learn about state management with useState',
-              url: 'https://example.com/video3.mp4',
-              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
-              duration: '20:15',
-              order: 1
-            }
-          ],
-          resources: [
-            {
-              id: 'r3',
-              title: 'Hooks Reference Guide',
-              type: 'file',
-              url: 'https://example.com/hooks-guide.zip',
-              size: '1.8 MB'
-            }
-          ]
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('/api/courses');
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
         }
-      ]
-    }
-  ]);
+        const { courses: fetchedCourses } = await response.json();
+        setCourses(fetchedCourses);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const handleCourseExpand = (courseId: string) => {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
@@ -349,16 +304,24 @@ export default function VideoManagement() {
         <CreateCourseForm
           onClose={() => setIsCreateModalOpen(false)}
           onSubmit={async (courseData) => {
-            // Here you would typically make an API call to create the course
-            // For now, we'll just add it to the local state
-            const newCourse: Course = {
-              ...courseData,
-              id: `course-${Date.now()}`,
-              chapters: [],
-              totalVideos: 0,
-              totalDuration: '0h 0m'
-            };
-            setCourses(prev => [newCourse, ...prev]);
+            try {
+              const response = await fetch('/api/courses', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(courseData),
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to create course');
+              }
+
+              const newCourse = await response.json();
+              setCourses(prev => [newCourse, ...prev]);
+            } catch (error) {
+              console.error('Error creating course:', error);
+            }
           }}
         />
       )}
@@ -371,25 +334,24 @@ export default function VideoManagement() {
             setIsChapterManagerOpen(false);
             setSelectedCourseId(null);
           }}
-          onSave={async (chapters: Chapter[]) => {
-            // Here you would typically make an API call to update the course chapters
-            // For now, we'll just update the local state
-            setCourses(prev => prev.map(course => 
-              course.id === selectedCourseId
-                ? {
-                    ...course,
-                    chapters,
-                    totalVideos: chapters.reduce((total: number, chapter: Chapter) => total + chapter.videos.length, 0),
-                    totalDuration: chapters.reduce((total: number, chapter: Chapter) => {
-                      const minutes = chapter.videos.reduce((totalMins: number, video) => {
-                        const [mins, secs] = video.duration.split(':').map(Number);
-                        return totalMins + mins + Math.floor(secs / 60);
-                      }, 0);
-                      return total + minutes;
-                    }, 0) + 'm'
-                  }
-                : course
-            ));
+          onSave={async (formData: FormData) => {
+            try {
+              const response = await fetch(`/api/courses/${selectedCourseId}/chapters`, {
+                method: 'PUT',
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to update chapters');
+              }
+
+              const updatedCourse = await response.json();
+              setCourses(prev => prev.map(course => 
+                course.id === selectedCourseId ? updatedCourse : course
+              ));
+            } catch (error) {
+              console.error('Error updating chapters:', error);
+            }
           }}
         />
       )}
