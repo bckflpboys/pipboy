@@ -293,12 +293,18 @@ export default function ChapterManager({ onClose, onSave, initialChapters = [] }
                       className="bg-gray-800/50 rounded-lg overflow-hidden"
                     >
                       <div className="relative aspect-video">
-                        <Image
-                          src={video.thumbnail}
-                          alt={video.title}
-                          fill
-                          className="object-cover"
-                        />
+                        {video.thumbnail && video.thumbnail.length > 0 ? (
+                          <Image
+                            src={video.thumbnail}
+                            alt={video.title}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">No thumbnail</span>
+                          </div>
+                        )}
                       </div>
                       <div className="p-3">
                         <h4 className="font-medium text-white truncate">{video.title}</h4>
