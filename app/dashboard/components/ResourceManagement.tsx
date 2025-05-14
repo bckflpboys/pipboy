@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import ResourceViewer from '../../components/ResourceViewer';
 import { ChevronDownIcon, ChevronUpIcon, DocumentIcon, PhotoIcon } from '@heroicons/react/24/outline';
