@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import { useState, useEffect, useCallback } from 'react';
 
 
 interface Message {
@@ -17,6 +18,31 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message }: ChatMessageProps) {
   const isBot = message.sender === 'bot';
+  const [formattedTime, setFormattedTime] = useState<string>('');
+  
+  // Get a stable raw time string for server rendering
+  const getRawTimeString = useCallback(() => {
+    if (typeof message.timestamp === 'string') {
+      if (message.timestamp.includes('T')) {
+        return message.timestamp;
+      }
+      return message.timestamp;
+    }
+    return message.timestamp.toISOString();
+  }, [message.timestamp]);
+  
+  // Format the time on the client side only after hydration
+  useEffect(() => {
+    try {
+      const date = typeof message.timestamp === 'string' 
+        ? new Date(message.timestamp) 
+        : message.timestamp;
+      setFormattedTime(format(date, 'h:mm a'));
+    } catch {  // No need to name the error if we're not using it
+      // Fallback if date parsing fails
+      setFormattedTime(getRawTimeString());
+    }
+  }, [message.timestamp, getRawTimeString]);
   
   return (
     <motion.div
@@ -39,12 +65,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </div>
           
           <span className={`text-xs text-gray-500 mt-1 ${isBot ? 'text-left' : 'text-right'}`}>
-            {/* Use a stable timestamp to prevent hydration mismatch */}
-            {typeof message.timestamp === 'string' 
-              ? message.timestamp.includes('T') 
-                ? format(new Date(message.timestamp), 'h:mm a') 
-                : message.timestamp
-              : format(message.timestamp, 'h:mm a')}
+            {/* Use a simple server-compatible format initially, then client-side formatting takes over */}
+            {formattedTime || ''}
           </span>
         </div>
       </div>
