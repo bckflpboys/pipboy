@@ -18,6 +18,7 @@ import CreateCourseForm from './CreateCourseForm';
 import ChapterManager from './ChapterManager';
 import VideoPlayer from '../../components/VideoPlayer';
 import ResourceViewer from '../../components/ResourceViewer';
+import SecureThumbnail from '../../components/SecureThumbnail';
 import type { Course, Chapter, Video, Resource } from '../../models/Course';
 
 interface CourseCardProps {
@@ -156,21 +157,26 @@ function ChapterCard({ chapter, onExpand, isExpanded, onVideoClick, onResourceCl
                 onClick={() => onVideoClick(video)}
               >
                 <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800">
-                  {video.thumbnail && video.thumbnail.length > 0 ? (
-                    <Image
-                      src={video.thumbnail}
-                      alt={video.title}
-                      fill
-                      className="object-cover"
-                    />
+                  {video.url && video.url.length > 0 ? (
+                    <>
+                      <SecureThumbnail 
+                        thumbnailUrl={video.url.replace(/\.[^/.]+$/, ".jpg")} 
+                        title={video.title} 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <PlayCircleIcon className="w-8 h-8 text-white" />
+                      </div>
+                    </>
                   ) : (
-                    <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                      <span className="text-gray-400 text-xs">No image</span>
-                    </div>
+                    <>
+                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">No video</span>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <PlayCircleIcon className="w-8 h-8 text-white" />
+                      </div>
+                    </>
                   )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <PlayCircleIcon className="w-8 h-8 text-white" />
-                  </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h5 className="text-sm font-medium text-white truncate">{video.title}</h5>
