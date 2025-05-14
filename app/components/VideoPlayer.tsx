@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { XMarkIcon, PlayIcon, PauseIcon, SpeakerWaveIcon, SpeakerXMarkIcon, BackwardIcon, ForwardIcon, ArrowsPointingOutIcon, WindowIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 
+// Interface for VideoPlayerProps
 interface VideoPlayerProps {
   videoUrl: string;
   title: string;
@@ -12,6 +13,8 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ videoUrl, title, onClose, allowDownload = false }: VideoPlayerProps) {
+  // Create a secure URL that hides the original source
+  const [secureVideoUrl, setSecureVideoUrl] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -20,16 +23,68 @@ export default function VideoPlayer({ videoUrl, title, onClose, allowDownload = 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Initialize the secure video URL
   useEffect(() => {
+    // Reset state when video URL changes
+    setIsPlaying(false);
+    setSecureVideoUrl('');
+    
+    // Use a proxy approach to hide the original URL
+    const fetchVideoSecurely = async () => {
+      try {
+        // Create a temporary blob URL that will fetch the video without exposing the URL
+        const response = await fetch(videoUrl, { method: 'HEAD' });
+        if (response.ok) {
+          // Create a blob URL from the original URL
+          const blob = await fetch(videoUrl).then(r => r.blob());
+          const blobUrl = URL.createObjectURL(blob);
+          setSecureVideoUrl(blobUrl);
+        } else {
+          console.error('Video URL is not accessible');
+        }
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      }
+    };
+    
+    fetchVideoSecurely();
+    
+    // Clean up blob URLs when component unmounts or video changes
+    return () => {
+      // Stop any ongoing playback
+      const video = videoRef.current;
+      if (video) {
+        video.pause();
+      }
+      
+      // Revoke the blob URL
+      if (secureVideoUrl && secureVideoUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(secureVideoUrl);
+      }
+    };
+  }, [videoUrl]);  // Remove secureVideoUrl from dependencies to prevent loops
+
+  useEffect(() => {
+    // Only set up event listeners when the secure URL is available
+    if (!secureVideoUrl) return;
+    
     const video = videoRef.current;
     if (!video) return;
 
+    // Reset progress and time when video changes
+    setCurrentTime(0);
+    setProgress(0);
+    setDuration(0);
+
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-      setProgress((video.currentTime / video.duration) * 100);
+      if (video.duration) {
+        setCurrentTime(video.currentTime);
+        setProgress((video.currentTime / video.duration) * 100);
+      }
     };
 
     const handleLoadedMetadata = () => {
+      console.log('Video metadata loaded, duration:', video.duration);
       setDuration(video.duration);
     };
     
@@ -45,31 +100,64 @@ export default function VideoPlayer({ videoUrl, title, onClose, allowDownload = 
       setIsPlaying(false);
     };
 
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('ended', handleEnded);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
+    // Capture the video reference for cleanup
+    const videoElement = video;
+
+    // Add event listeners
+    videoElement.addEventListener('timeupdate', handleTimeUpdate);
+    videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+    videoElement.addEventListener('loadeddata', handleLoadedMetadata); // Additional event for better compatibility
+    videoElement.addEventListener('durationchange', handleLoadedMetadata); // Catch duration changes
+    videoElement.addEventListener('ended', handleEnded);
+    videoElement.addEventListener('play', handlePlay);
+    videoElement.addEventListener('pause', handlePause);
+
+    // Force a metadata load
+    if (videoElement.readyState >= 1) {
+      handleLoadedMetadata();
+    }
 
     return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('ended', handleEnded);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
+      // Remove event listeners using the captured reference
+      videoElement.removeEventListener('timeupdate', handleTimeUpdate);
+      videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.removeEventListener('loadeddata', handleLoadedMetadata);
+      videoElement.removeEventListener('durationchange', handleLoadedMetadata);
+      videoElement.removeEventListener('ended', handleEnded);
+      videoElement.removeEventListener('play', handlePlay);
+      videoElement.removeEventListener('pause', handlePause);
     };
-  }, []);
+  }, [secureVideoUrl]); // Add secureVideoUrl as a dependency to reset listeners when the video changes
 
   const togglePlay = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !secureVideoUrl) return;
 
-    if (isPlaying) {
-      video.pause();
-    } else {
-      video.play();
+    try {
+      if (isPlaying) {
+        video.pause();
+      } else {
+        // Use a promise to handle play errors
+        const playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              // Playback started successfully
+              setIsPlaying(true);
+            })
+            .catch(error => {
+              // Auto-play was prevented or another error occurred
+              console.error('Play error:', error);
+              setIsPlaying(false);
+            });
+        }
+        return; // Don't update state yet - wait for the promise
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error('Toggle play error:', error);
     }
-    setIsPlaying(!isPlaying);
   };
 
   const toggleMute = () => {
@@ -127,11 +215,14 @@ export default function VideoPlayer({ videoUrl, title, onClose, allowDownload = 
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !duration) return;
 
     const seekTime = (parseInt(e.target.value) / 100) * duration;
     video.currentTime = seekTime;
     setCurrentTime(seekTime);
+    
+    // Update progress immediately for a responsive feel
+    setProgress((seekTime / duration) * 100);
   };
 
   const formatTime = (timeInSeconds: number) => {
@@ -159,22 +250,41 @@ export default function VideoPlayer({ videoUrl, title, onClose, allowDownload = 
         </div>
 
         <div className="relative aspect-video bg-black flex-grow">
-          <video
-            ref={videoRef}
-            src={videoUrl}
-            className="w-full h-full"
-            onClick={togglePlay}
-            playsInline
-            controlsList="nodownload"
-            // Disable default controls to use our custom controls in fullscreen
-            controls={false}
-            // Prevent right-click context menu to disable "Save Video As..." option
-            onContextMenu={(e) => e.preventDefault()}
-            // Disable dragging the video to prevent drag-and-drop saving
-            draggable={false}
-          />
+          {secureVideoUrl ? (
+            <video
+              ref={videoRef}
+              src={secureVideoUrl}
+              className="w-full h-full"
+              onClick={togglePlay}
+              playsInline
+              controlsList="nodownload"
+              // Disable default controls to use our custom controls in fullscreen
+              controls={false}
+              // Prevent right-click context menu to disable "Save Video As..." option
+              onContextMenu={(e) => e.preventDefault()}
+              // Disable dragging the video to prevent drag-and-drop saving
+              draggable={false}
+              // Add crossOrigin attribute to prevent CORS issues with blob URLs
+              crossOrigin="anonymous"
+              // Add preload attribute to ensure video is ready before playing
+              preload="auto"
+              // Handle loading errors
+              onError={(e) => console.error('Video loading error:', e)}
+              // Force the video to load metadata as soon as possible
+              onLoadedMetadata={(e) => {
+                const video = e.currentTarget;
+                if (video && video.duration) {
+                  setDuration(video.duration);
+                }
+              }}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-black">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          )}
           
-          {!isPlaying && (
+          {!isPlaying && secureVideoUrl && (
             <div className="absolute inset-0 flex items-center justify-center">
               <button
                 onClick={togglePlay}
@@ -234,13 +344,18 @@ export default function VideoPlayer({ videoUrl, title, onClose, allowDownload = 
               {allowDownload && (
                 <button
                   onClick={() => {
-                    // Create a temporary anchor element to trigger download
-                    const a = document.createElement('a');
-                    a.href = videoUrl;
-                    a.download = title || 'video';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
+                    if (allowDownload) {
+                      // For authorized downloads, use the original URL
+                      // This requires server-side authentication to work properly
+                      const a = document.createElement('a');
+                      a.href = videoUrl;
+                      a.download = title || 'video';
+                      a.target = '_blank'; // Open in new tab
+                      a.rel = 'noopener noreferrer';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                    }
                   }}
                   className="p-1 sm:p-2 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-full transition-colors"
                   title="Download video"
