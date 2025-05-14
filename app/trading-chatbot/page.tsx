@@ -3,9 +3,11 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import WaitlistForm from '../components/WaitlistForm';
 
 export default function TradingBotPage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -50,7 +52,10 @@ export default function TradingBotPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+              <button 
+                onClick={() => setIsWaitlistOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
                 JOIN WAITLIST
               </button>
               <Link href="/" className="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300">
@@ -205,13 +210,18 @@ export default function TradingBotPage() {
                 placeholder="Enter your email"
                 className="bg-gray-800 border border-gray-700 text-white px-6 py-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
               />
-              <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+              <button 
+                onClick={() => setIsWaitlistOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
                 JOIN WAITLIST
               </button>
             </div>
           </motion.div>
         </div>
       </div>
+      {/* Waitlist Form Modal */}
+      <WaitlistForm isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
     </div>
   );
 }
