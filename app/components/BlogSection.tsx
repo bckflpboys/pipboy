@@ -6,9 +6,11 @@ import Link from 'next/link';
 import Button from './Button';
 import { useEffect, useState } from 'react';
 import type { BlogPost } from '../../types/blog';
+import BlogSkeleton from './BlogSkeleton';
 
 function BlogSection() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -23,6 +25,8 @@ function BlogSection() {
         setBlogs(data);
       } catch (error) {
         console.error('Error fetching blogs:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -61,7 +65,9 @@ function BlogSection() {
           </p>
         </motion.div>
 
-        {blogs.length === 0 ? (
+        {isLoading ? (
+          <BlogSkeleton />
+        ) : blogs.length === 0 ? (
           <div className="text-center text-gray-400">
             No blog posts available yet.
           </div>
