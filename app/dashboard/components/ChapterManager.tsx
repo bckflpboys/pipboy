@@ -52,15 +52,54 @@ export default function ChapterManager({ onClose, onSave, initialChapters = [] }
   const [resourceUploads, setResourceUploads] = useState<Record<number, ResourceUpload[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>, chapterIndex: number) => {
+  const extractVideoDuration = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      // Create a temporary video element to get duration
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        const duration = video.duration;
+        
+        // Format duration as mm:ss or hh:mm:ss
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        const seconds = Math.floor(duration % 60);
+        
+        let formattedDuration = '';
+        if (hours > 0) {
+          formattedDuration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+          formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        resolve(formattedDuration);
+      };
+      
+      // Handle errors by providing a default duration
+      video.onerror = () => {
+        console.error('Error getting video duration');
+        resolve('00:00');
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleVideoFileChange = async (e: React.ChangeEvent<HTMLInputElement>, chapterIndex: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    const previewUrl = URL.createObjectURL(file);
+    const duration = await extractVideoDuration(file);
 
     const videoUpload: VideoUpload = {
       file,
-      previewUrl: URL.createObjectURL(file),
+      previewUrl,
       title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-      description: ''
+      description: '',
+      duration
     };
 
     setVideoUploads(prev => ({
@@ -137,7 +176,7 @@ export default function ChapterManager({ onClose, onSave, initialChapters = [] }
             thumbnailFile: upload.thumbnailFile ? `thumbnail_${index}_${vIndex}` : undefined,
             url: undefined, // Will be set by the API after upload
             thumbnail: upload.previewUrl, // Current preview, will be replaced by API
-            duration: upload.duration || '10:00',
+            duration: upload.duration || '00:00',
             order: vIndex + 1
           };
         });
