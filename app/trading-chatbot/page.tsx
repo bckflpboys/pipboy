@@ -166,33 +166,33 @@ export default function TradingBotPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: "Real-time Market Analysis",
-                description: "Get instant analysis of market conditions and potential trade opportunities.",
+                title: "Chat-Based Market Analysis",
+                description: "Ask questions and get instant analysis of market conditions through natural conversation.",
                 icon: "📊"
               },
               {
-                title: "Personalized Trading Advice",
-                description: "Receive custom recommendations based on your trading style and risk tolerance.",
+                title: "Conversational Trading Advice",
+                description: "Chat with PB to receive personalized recommendations based on your trading style.",
                 icon: "🎯"
               },
               {
-                title: "Risk Management",
-                description: "Automated suggestions for stop-loss and take-profit levels to protect your capital.",
+                title: "Interactive Risk Management",
+                description: "Discuss your positions and get chat-based suggestions for stop-loss and take-profit levels.",
                 icon: "🛡️"
               },
               {
-                title: "Pattern Recognition",
-                description: "Identify chart patterns and technical setups across multiple timeframes.",
+                title: "AI Pattern Recognition",
+                description: "Message PB to identify chart patterns and get explanations in simple conversational language.",
                 icon: "📈"
               },
               {
-                title: "Trading Journal",
-                description: "Keep track of your trades and receive performance insights to improve your strategy.",
+                title: "Conversational Trading Journal",
+                description: "Chat about your past trades and receive AI-powered insights to improve your strategy.",
                 icon: "📝"
               },
               {
-                title: "24/7 Availability",
-                description: "Access trading assistance whenever you need it, day or night.",
+                title: "24/7 Chat Availability",
+                description: "Message your AI trading assistant anytime, anywhere - it's always ready to respond.",
                 icon: "⏰"
               }
             ].map((feature, index) => (
