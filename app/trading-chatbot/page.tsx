@@ -213,6 +213,68 @@ export default function TradingBotPage() {
         </div>
       </div>
 
+      {/* Sneak Peek Section */}
+      <div className="py-24 relative">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">SNEAK PEEK</h2>
+            <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+              Get a glimpse of the PB Trading Chat Bot interface and features
+            </p>
+          </motion.div>
+
+          {/* Desktop Screenshot - Large Landscape Image */}
+          <div className="mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative rounded-xl overflow-hidden border-2 border-gray-800 shadow-lg shadow-blue-500/10 mx-auto max-w-4xl"
+            >
+              <img 
+                src="/pb-s-4-large.png" 
+                alt="PB Chat Bot Desktop Preview" 
+                className="w-full h-auto"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+            </motion.div>
+          </div>
+
+          {/* Mobile Screenshots - Portrait Images */}
+          <div className="mb-8">
+            <h3 className="text-xl md:text-2xl font-semibold mb-6 text-center">Mobile Views</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[1, 2, 3].map((num) => (
+                <motion.div
+                  key={`mobile-${num}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: num * 0.1 }}
+                  className="relative rounded-xl overflow-hidden border-2 border-gray-800 shadow-lg shadow-blue-500/10 mx-auto"
+                >
+                  <img 
+                    src={num === 1 ? '/pb-s-1.png' : num === 2 ? '/pb-s-2.png' : '/pb-s-3.png'} 
+                    alt={`PB Chat Bot Mobile Preview ${num}`} 
+                    className="w-full h-auto max-w-[280px]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Try Demo button removed as requested */}
+        </div>
+      </div>
+
       {/* FAQ Section */}
       <div className="py-24 bg-gray-900/30">
         <div className="container mx-auto px-4">
