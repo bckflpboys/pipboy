@@ -17,7 +17,8 @@ export function middleware(req: NextRequest) {
     if (
       pathname.startsWith('/_next/') || 
       pathname.includes('.') ||     // Files with extensions (css, js, etc.)
-      pathname.startsWith('/pb-chat')
+      pathname.startsWith('/pb-chat') ||
+      pathname.startsWith('/api/auth') // Don't rewrite Next-Auth API routes
     ) {
       return NextResponse.next();
     }
