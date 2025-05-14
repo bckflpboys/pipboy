@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 
 const menuItems = [
-  { label: 'Profile', href: '/profile' },
   { label: 'Dashboard', href: '/dashboard' },
   { label: 'Class', href: '/class' },
   { label: 'Membership', href: '/membership' },

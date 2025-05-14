@@ -77,6 +77,12 @@ function EcosystemSection() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="group relative"
+                onClick={() => {
+                  if (course.title === "PIPBOY TRADING CHAT BOT") {
+                    window.location.href = "/trading-chatbot";
+                  }
+                }}
+                style={course.title === "PIPBOY TRADING CHAT BOT" ? { cursor: 'pointer' } : {}}
               >
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
                 <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 group-hover:border-blue-500/30 transition-all duration-300">
@@ -88,7 +94,6 @@ function EcosystemSection() {
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                       unoptimized
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
                     {course.title === "PIPBOY CONCEPTS SIMPLIFIED" && (
                       <div className="absolute top-4 left-4">
                         <span className="bg-green-500/20 backdrop-blur-sm text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/50 font-semibold">
@@ -111,12 +116,21 @@ function EcosystemSection() {
                     </p>
                     <div className="flex items-center justify-between mt-6">
                       <span className="text-xs text-gray-500">{course.duration}</span>
-                      <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
-                        Learn More 
-                        <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                      </button>
+                      {course.title === "PIPBOY TRADING CHAT BOT" ? (
+                        <a href="/trading-chatbot" className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
+                          Learn More 
+                          <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </a>
+                      ) : (
+                        <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
+                          Learn More 
+                          <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import { motion } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
@@ -23,7 +24,9 @@ interface User {
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [users] = useState<User[]>([
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>([
     {
       id: '1',
       name: 'John Doe',
@@ -42,8 +45,30 @@ export default function UserManagement() {
       joinedAt: '2024-03-15',
       lastActive: '2024-04-28',
     },
-    // Add more dummy users as needed
   ]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to fetch users');
+        }
+
+        setUsers(data.users);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        setError('Failed to load users. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const filteredUsers = users.filter(
     (user) =>
@@ -54,6 +79,34 @@ export default function UserManagement() {
   const toggleMenu = (userId: string) => {
     setActiveMenu(activeMenu === userId ? null : userId);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <ArrowPathIcon className="w-8 h-8 text-blue-500 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-red-500 text-center">
+            <p className="mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -138,8 +191,8 @@ export default function UserManagement() {
                       {user.status}
                     </span>
                   </td>
-                  <td className="p-4 text-gray-400">{user.joinedAt}</td>
-                  <td className="p-4 text-gray-400">{user.lastActive}</td>
+                  <td className="p-4 text-gray-400">{formatDate(user.joinedAt)}</td>
+                  <td className="p-4 text-gray-400">{formatDate(user.lastActive)}</td>
                   <td className="p-4">
                     <div className="flex justify-end gap-2">
                       <button 
@@ -244,9 +297,10 @@ export default function UserManagement() {
                   {user.status}
                 </span>
               </div>
-              <div className="flex flex-col gap-1 text-sm text-gray-400">
-                <p>Joined: {user.joinedAt}</p>
-                <p>Last active: {user.lastActive}</p>
+              <div className="text-gray-400 text-sm">
+                Joined: {formatDate(user.joinedAt)}
+                <br />
+                Last active: {formatDate(user.lastActive)}
               </div>
             </div>
           </motion.div>

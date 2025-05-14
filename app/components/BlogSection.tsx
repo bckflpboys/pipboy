@@ -3,10 +3,38 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import Button from './Button';
-import { blogPosts } from '../data/blogPosts';
+import { useEffect, useState } from 'react';
+import type { BlogPost } from '../../types/blog';
+import BlogSkeleton from './BlogSkeleton';
+import BlogCard from './BlogCard';
 
 function BlogSection() {
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const response = await fetch('/api/blog');  
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to fetch blogs');
+        }
+        const data = await response.json();
+        console.log('Fetched blogs:', data);  
+        setBlogs(data);
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
+
+  console.log('Current blogs state:', blogs);
+
   return (
     <div className="py-20 bg-black relative">
       {/* Background Image */}
@@ -37,63 +65,23 @@ function BlogSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.map((post, index) => (
-            <motion.article
-              key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group bg-gray-900/30 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300"
-            >
-              <Link href={`/blog/${post.id}`}>
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    unoptimized
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
-                  <div className="absolute bottom-4 left-4">
-                    <span className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-xs px-2 py-1 rounded-full border border-blue-500/50">
-                      {post.category}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                    <span>{post.date}</span>
-                    <span>•</span>
-                    <span>{post.readTime}</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors duration-300">
-                    {post.title}
-                  </h3>
-                  
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                    {post.excerpt}
-                  </p>
-                  
-                  <div className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center gap-2 group-hover:gap-3">
-                    Read More 
-                    <svg className="w-4 h-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            </motion.article>
-          ))}
-        </div>
+        {isLoading ? (
+          <BlogSkeleton />
+        ) : blogs.length === 0 ? (
+          <div className="text-center text-gray-400">
+            No blog posts available yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogs.map((post, index) => (
+              <BlogCard key={post.slug} post={post} index={index} />
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-12">
-          <Link href="/blog">
-            <Button variant="secondary">VIEW ALL POSTS</Button>
+          <Link href="/blog" className="inline-block px-6 py-3 text-sm font-medium text-blue-400 border border-blue-500/50 rounded-lg hover:bg-blue-500/10 transition-colors duration-300">
+            VIEW ALL POSTS
           </Link>
         </div>
       </div>
