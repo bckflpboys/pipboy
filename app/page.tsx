@@ -8,10 +8,14 @@ import BlogSection from '@/components/BlogSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
+import AccessDeniedHandler from '@/components/AccessDeniedHandler';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Handle access denied messages */}
+      <AccessDeniedHandler />
+      
       <HeroSection />
       <EcosystemSection />
       <NetworkSection />

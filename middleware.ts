@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAuth } from "next-auth/middleware";
 import { UserRole } from "@/models/User";
 
-// Enhanced middleware to handle subdomain routing
+// Enhanced middleware to handle subdomain routing and dashboard protection
 export function middleware(req: NextRequest) {
   // Check for subdomain
   const hostname = req.headers.get('host') || ''
@@ -31,13 +31,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.rewrite(url);
   }
   
-  // For non-dashboard routes, just continue
-  if (!req.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.next()
-  }
-  
-  // For dashboard routes, the withAuth middleware will handle auth
+    // For dashboard routes, the withAuth middleware will handle auth
   // This code won't actually run for dashboard routes because of the matcher config
+  
+  // For all other routes, continue
   return NextResponse.next()
 }
 
@@ -52,8 +49,10 @@ export const authConfig = withAuth(
     // Check if user is admin for dashboard access
     if (req.nextUrl.pathname.startsWith('/dashboard')) {
       if (token?.role !== UserRole.ADMIN) {
-        // Redirect non-admin users to home page
-        return NextResponse.redirect(new URL('/', req.url))
+        // Redirect non-admin users to home page with a message
+        const redirectUrl = new URL('/', req.url);
+        redirectUrl.searchParams.set('message', 'You do not have permission to access the dashboard');
+        return NextResponse.redirect(redirectUrl);
       }
     }
     
@@ -61,6 +60,7 @@ export const authConfig = withAuth(
   },
   {
     callbacks: {
+      // Only authorize if token exists (user is logged in)
       authorized: ({ token }) => !!token
     },
     pages: {

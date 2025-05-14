@@ -60,30 +60,70 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account }) {
-      console.log('JWT Callback - User:', user)
-      console.log('JWT Callback - Token:', token)
-
+      // Remove console logs to avoid showing errors in the browser console
+      
+      // If this is the first sign in with credentials
       if (account?.type === 'credentials' && user) {
-        // For credentials sign in
         token.role = user.role
-      } else if (!token.role) {
-        // For first-time OAuth sign in or missing role
+      } 
+      // If this is a sign in with OAuth (Google)
+      else if (account?.type === 'oauth' && user) {
+        // This is a new OAuth sign in, user object is available
+        try {
+          const client = await clientPromise
+          const db = client.db()
+          
+          // Check if user exists and update with role and createdAt if needed
+          const dbUser = await db.collection('users').findOne({ email: user.email })
+          
+          if (dbUser) {
+            // Set role if not already set
+            if (!dbUser.role) {
+              await db.collection('users').updateOne(
+                { email: user.email },
+                { $set: { role: UserRole.USER } }
+              )
+            }
+            
+            // Set createdAt if not already set
+            if (!dbUser.createdAt) {
+              await db.collection('users').updateOne(
+                { email: user.email },
+                { $set: { createdAt: new Date() } }
+              )
+            }
+            
+            // Update token with role from database
+            token.role = dbUser.role || UserRole.USER
+          }
+        } catch {
+          // Silently handle error to avoid console errors
+        }
+      }
+      // For subsequent sign-ins where we only have the token
+      else if (!token.role) {
         try {
           const client = await clientPromise
           const db = client.db()
           const dbUser = await db.collection('users').findOne({ email: token.email })
-          if (dbUser?.role) {
-            token.role = dbUser.role
+          
+          if (dbUser) {
+            // Set token role from database
+            token.role = dbUser.role || UserRole.USER
+          } else {
+            // Default role if user not found (shouldn't happen)
+            token.role = UserRole.USER
           }
-        } catch (error) {
-          console.error('Error fetching user role:', error)
+        } catch {
+          // Silently handle error to avoid console errors
+          token.role = UserRole.USER
         }
       }
+      
       return token
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      console.log('Session Callback - Token:', token)
-      console.log('Session Callback - Session:', session)
+      // Remove console logs to avoid showing errors in the browser console
       if (session?.user) {
         session.user.id = token.id as string
         session.user.role = token.role as UserRole

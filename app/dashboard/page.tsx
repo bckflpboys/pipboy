@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import DashboardSidebar from './components/DashboardSidebar';
@@ -11,20 +11,15 @@ import Settings from './components/Settings';
 import BlogManagement from './components/BlogManagement';
 import SubscriptionManagement from './components/SubscriptionManagement';
 
+// Define tab types
 type DashboardTab = 'videos' | 'analytics' | 'users' | 'settings' | 'blog' | 'subscriptions';
 
-export default function DashboardPage() {
-  const { status } = useSession();
-  const router = useRouter();
+// Inner content component for dashboard functionality
+function DashboardContent() {
   const [activeTab, setActiveTab] = useState<DashboardTab>('videos');
-
-  // Protect the dashboard route
-  if (status === 'unauthenticated') {
-    router.push('/auth/signin');
-    return null;
-  }
-
-  const renderContent = () => {
+  
+  // Tab content mapping function
+  const getTabContent = () => {
     switch (activeTab) {
       case 'videos':
         return <VideoManagement />;
@@ -54,11 +49,63 @@ export default function DashboardPage() {
             
             {/* Content */}
             <div className="relative z-10 p-8">
-              {renderContent()}
+              {getTabContent()}
             </div>
           </div>
         </main>
       </div>
     </div>
   );
+}
+
+// Export page component with admin verification
+export default function Page() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
+  
+  useEffect(() => {
+    // Only verify admin role if session is available
+    if (status === 'loading') return;
+    
+    // Verify admin access on component mount
+    const verifyAdminAccess = async () => {
+      try {
+        // Call the admin access verification API
+        const response = await fetch('/api/auth/check-admin-access');
+        const result = await response.json();
+        
+        // If not an admin, redirect to home
+        if (!result.success) {
+          router.replace('/?message=You+do+not+have+permission+to+access+the+dashboard');
+        }
+      } catch (error) {
+        console.error('Error verifying admin access:', error);
+        // On error, safely redirect
+        router.replace('/');
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    
+    // Run verification if user is logged in
+    if (status === 'authenticated') {
+      verifyAdminAccess();
+    } else if (status === 'unauthenticated') {
+      // Redirect to login if not authenticated
+      router.replace('/auth/signin?callbackUrl=/dashboard');
+    }
+  }, [status, router]);
+  
+  // Show loading state while checking
+  if (isChecking || status === 'loading') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-pulse text-blue-500 text-xl">Verifying access...</div>
+      </div>
+    );
+  }
+  
+  // Only render dashboard for authenticated users (actual admin check is done in useEffect)
+  return session ? <DashboardContent /> : null;
 }
