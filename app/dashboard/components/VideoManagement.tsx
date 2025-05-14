@@ -17,6 +17,7 @@ import {
 import CreateCourseForm from './CreateCourseForm';
 import ChapterManager from './ChapterManager';
 import VideoPlayer from '../../components/VideoPlayer';
+import ResourceViewer from '../../components/ResourceViewer';
 import type { Course, Chapter, Video, Resource } from '../../models/Course';
 
 interface CourseCardProps {
@@ -27,6 +28,7 @@ interface CourseCardProps {
   isExpanded: boolean;
   expandedChapterId: string | null;
   onVideoClick: (video: Video) => void;
+  onResourceClick: (resource: Resource) => void;
 }
 
 interface ChapterCardProps {
@@ -34,6 +36,7 @@ interface ChapterCardProps {
   onExpand: (chapterId: string) => void;
   isExpanded: boolean;
   onVideoClick: (video: Video) => void;
+  onResourceClick: (resource: Resource) => void;
 }
 
 function ResourceIcon({ type }: { type: Resource['type'] }) {
@@ -47,7 +50,7 @@ function ResourceIcon({ type }: { type: Resource['type'] }) {
   }
 }
 
-function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExpanded, expandedChapterId, onVideoClick }: CourseCardProps) {
+function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExpanded, expandedChapterId, onVideoClick, onResourceClick }: CourseCardProps) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -57,12 +60,18 @@ function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExp
       <div className="p-4">
         <div className="flex items-start gap-4">
           <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-800">
-            <Image
-              src={course.thumbnail}
-              alt={course.title}
-              fill
-              className="object-cover"
-            />
+            {course.thumbnail && course.thumbnail.length > 0 ? (
+              <Image
+                src={course.thumbnail}
+                alt={course.title}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                <span className="text-gray-400 text-xs">No image</span>
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-white truncate">{course.title}</h3>
@@ -106,6 +115,7 @@ function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExp
               onExpand={onChapterExpand}
               isExpanded={expandedChapterId === chapter.id}
               onVideoClick={onVideoClick}
+              onResourceClick={onResourceClick}
             />
           ))}
         </div>
@@ -114,7 +124,7 @@ function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExp
   );
 }
 
-function ChapterCard({ chapter, onExpand, isExpanded, onVideoClick }: ChapterCardProps) {
+function ChapterCard({ chapter, onExpand, isExpanded, onVideoClick, onResourceClick }: ChapterCardProps) {
   return (
     <div className="bg-gray-900/30">
       <div className="p-4">
@@ -146,12 +156,18 @@ function ChapterCard({ chapter, onExpand, isExpanded, onVideoClick }: ChapterCar
                 onClick={() => onVideoClick(video)}
               >
                 <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800">
-                  <Image
-                    src={video.thumbnail}
-                    alt={video.title}
-                    fill
-                    className="object-cover"
-                  />
+                  {video.thumbnail && video.thumbnail.length > 0 ? (
+                    <Image
+                      src={video.thumbnail}
+                      alt={video.title}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                      <span className="text-gray-400 text-xs">No image</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
                     <PlayCircleIcon className="w-8 h-8 text-white" />
                   </div>
@@ -183,35 +199,44 @@ function ChapterCard({ chapter, onExpand, isExpanded, onVideoClick }: ChapterCar
               <h5 className="text-sm font-medium text-gray-400 mb-2">Resources</h5>
               <div className="space-y-2">
                 {chapter.resources.map((resource: Resource) => (
-                  <div 
-                    key={resource.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors"
-                  >
-                    <div className="p-2 bg-gray-900/50 rounded-lg">
-                      <ResourceIcon type={resource.type} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h6 className="text-sm font-medium text-white truncate">{resource.title}</h6>
-                      {resource.size && (
-                        <p className="text-xs text-gray-400 mt-0.5">{resource.size}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button 
-                        className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
-                        title="Edit resource"
-                      >
-                        <PencilIcon className="w-4 h-4" />
-                      </button>
-                      <button 
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
-                        title="Delete resource"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
-                    </div>
+                <div 
+                  key={resource.id}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors group cursor-pointer"
+                  onClick={() => onResourceClick(resource)}
+                >
+                  <div className="p-2 bg-gray-900/50 rounded-lg">
+                    <ResourceIcon type={resource.type} />
                   </div>
-                ))}
+                  <div className="flex-1 min-w-0">
+                    <h6 className="text-sm font-medium text-white truncate">{resource.title}</h6>
+                    {resource.size && (
+                      <p className="text-xs text-gray-400 mt-0.5">{resource.size}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+                      title="Edit resource"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the parent onClick
+                        // Handle edit resource
+                      }}
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                    <button 
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
+                      title="Delete resource"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the parent onClick
+                        // Handle delete resource
+                      }}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
               </div>
             </div>
           )}
@@ -230,6 +255,7 @@ export default function VideoManagement() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -270,6 +296,10 @@ export default function VideoManagement() {
     setSelectedVideo(video);
   };
 
+  const handleResourceClick = (resource: Resource) => {
+    setSelectedResource(resource);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -299,6 +329,7 @@ export default function VideoManagement() {
             isExpanded={expandedCourseId === course.id}
             expandedChapterId={expandedChapterId}
             onVideoClick={handleVideoClick}
+            onResourceClick={handleResourceClick}
           />
         ))}
       </div>
@@ -364,6 +395,16 @@ export default function VideoManagement() {
           videoUrl={selectedVideo.url}
           title={selectedVideo.title}
           onClose={() => setSelectedVideo(null)}
+          allowDownload={false} // Set default or add allowDownload to Video type
+        />
+      )}
+
+      {selectedResource && (
+        <ResourceViewer
+          resourceUrl={selectedResource.url}
+          title={selectedResource.title}
+          onClose={() => setSelectedResource(null)}
+          allowDownload={selectedResource.type === 'file'} // Allow download for file type resources
         />
       )}
     </div>
