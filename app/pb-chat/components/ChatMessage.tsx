@@ -25,12 +25,15 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       className={`flex ${isBot ? 'justify-start' : 'justify-end'}`}
     >
       <div className={`flex items-start max-w-3xl ${isBot ? 'flex-row' : 'flex-row-reverse'}`}>
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isBot ? 'bg-blue-600 mr-3' : 'bg-purple-600 ml-3'}`}>
-          <span className="text-xl">{isBot ? '🤖' : '👤'}</span>
+        <div className={`relative w-10 h-10 flex-shrink-0 ${isBot ? 'mr-3' : 'ml-3'}`}>
+          <div className={`absolute inset-0 rounded-full ${isBot ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'} blur-sm opacity-70`}></div>
+          <div className={`absolute inset-0 rounded-full ${isBot ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'} flex items-center justify-center`}>
+            <span className="text-xl">{isBot ? '🤖' : '👤'}</span>
+          </div>
         </div>
         
         <div className="flex flex-col">
-          <div className={`rounded-lg p-4 ${isBot ? 'bg-gray-800 text-white' : 'bg-blue-600 text-white'}`}>
+          <div className={`rounded-lg p-4 ${isBot ? 'bg-black/50 backdrop-blur-sm border border-blue-500/30 text-white' : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-blue-500/20'}`}>
             <p className="whitespace-pre-wrap">{message.content}</p>
           </div>
           

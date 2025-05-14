@@ -48,17 +48,15 @@ const Navbar = () => {
             >
               Resources
             </Link>
-            <a 
-              href="http://pb.localhost:3000" 
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link 
+              href="/pb-chat" 
               className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
             >
               <span className="flex items-center">
                 <span className="mr-1.5 text-blue-400">🤖</span>
                 PB Chat Bot
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -120,10 +118,8 @@ const Navbar = () => {
           >
             Resources
           </Link>
-          <a 
-            href="http://pb.localhost:3000" 
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link 
+            href="/pb-chat" 
             className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
             onClick={() => setIsMenuOpen(false)}
           >
@@ -131,7 +127,7 @@ const Navbar = () => {
               <span className="mr-1.5 text-blue-400">🤖</span>
               PB Chat Bot
             </span>
-          </a>
+          </Link>
         </div>
         </div>
       </div>

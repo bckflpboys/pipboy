@@ -28,11 +28,17 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -300, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="w-80 h-full bg-gray-800 border-r border-gray-700 flex flex-col z-20"
+          className="w-80 h-full bg-black/70 backdrop-blur-lg border-r border-gray-800/50 flex flex-col z-20"
         >
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-            <h2 className="font-bold text-xl">PB Trading Bot</h2>
+          <div className="p-4 border-b border-gray-800/50 flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="relative inline-block mr-2">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur-lg opacity-50"></div>
+                <h2 className="relative text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">PB</h2>
+              </div>
+              <h2 className="font-bold text-lg">Trading Bot</h2>
+            </div>
             <button 
               onClick={() => setIsOpen(false)}
               className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
@@ -43,14 +49,14 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
           
           {/* New Chat Button */}
           <div className="p-4">
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+            <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2 px-4 rounded-lg flex items-center justify-center transition-all shadow-lg shadow-blue-500/20">
               <PlusIcon className="w-5 h-5 mr-2" />
               New Conversation
             </button>
           </div>
           
           {/* Tabs */}
-          <div className="flex border-b border-gray-700">
+          <div className="flex border-b border-gray-800/50">
             <button
               onClick={() => setActiveTab('chats')}
               className={`flex-1 py-3 text-center transition-colors ${activeTab === 'chats' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
@@ -72,7 +78,7 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
                 {sampleConversations.map((convo) => (
                   <div 
                     key={convo.id}
-                    className="p-3 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors mb-1"
+                    className="p-3 hover:bg-gray-800/70 rounded-lg cursor-pointer transition-colors mb-1 border border-transparent hover:border-blue-500/30"
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="font-medium">{convo.title}</h3>
@@ -88,7 +94,7 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
             
             {activeTab === 'templates' && (
               <div className="p-2 space-y-2">
-                <div className="p-3 bg-gray-700/50 hover:bg-gray-700 rounded-lg cursor-pointer transition-colors">
+                <div className="p-3 bg-blue-900/20 hover:bg-blue-900/30 rounded-lg cursor-pointer transition-colors border border-blue-500/20 hover:border-blue-500/40">
                   <div className="flex items-center">
                     <ChatBubbleLeftRightIcon className="w-5 h-5 mr-3 text-blue-400" />
                     <div>
@@ -132,13 +138,16 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
           </div>
           
           {/* Footer */}
-          <div className="p-4 border-t border-gray-700">
+          <div className="p-4 border-t border-gray-800/50 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
             <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mr-3">
-                <span className="font-bold text-white">PB</span>
+              <div className="relative w-10 h-10 mr-3">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 blur-sm opacity-70"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                  <span className="font-bold text-white">PB</span>
+                </div>
               </div>
               <div>
-                <p className="font-medium">PB Trading Chat Bot</p>
+                <p className="font-medium bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">PB Trading Chat Bot</p>
                 <p className="text-xs text-gray-400">v1.0.0 Beta</p>
               </div>
             </div>

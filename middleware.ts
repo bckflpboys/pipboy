@@ -10,8 +10,9 @@ export function middleware(req: NextRequest) {
   
   // Handle PB subdomain requests
   if (isPbSubdomain) {
-    // Rewrite the URL to the chatbot interface
-    return NextResponse.rewrite(new URL('/pb-chat', req.url))
+    // Use redirect instead of rewrite to ensure proper CSS loading
+    const url = new URL('/pb-chat', req.url);
+    return NextResponse.redirect(url);
   }
   
   // For non-dashboard routes, just continue

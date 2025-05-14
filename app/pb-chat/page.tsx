@@ -6,6 +6,7 @@ import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import ChatMessage from './components/ChatMessage';
 import ChatHeader from './components/ChatHeader';
 import ChatSidebar from './components/ChatSidebar';
+import '../globals.css';
 
 // Message type definition
 interface Message {
@@ -90,18 +91,65 @@ export default function PBChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="flex h-screen bg-black text-white overflow-hidden relative">
+      {/* Background Elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Moving rings - matching trading-chatbot page */}
+        <motion.div 
+          className="absolute w-[300px] h-[300px] border-4 border-blue-500/60 rounded-full"
+          initial={{ left: '-150px', top: '30%' }}
+          animate={{ left: '100%', top: '70%' }}
+          transition={{
+            duration: 20,
+            ease: "linear",
+            repeat: Infinity,
+          }}
+          style={{
+            boxShadow: '0 0 15px 2px rgba(59, 130, 246, 0.5)'
+          }}
+        ></motion.div>
+        
+        <motion.div 
+          className="absolute w-[200px] h-[200px] border-4 border-purple-500/70 rounded-full"
+          initial={{ top: '-100px', left: '60%' }}
+          animate={{ top: '100%', left: '20%' }}
+          transition={{
+            duration: 15,
+            ease: "linear",
+            repeat: Infinity,
+          }}
+          style={{
+            boxShadow: '0 0 15px 2px rgba(147, 51, 234, 0.5)'
+          }}
+        ></motion.div>
+        
+        <motion.div 
+          className="absolute w-[400px] h-[400px] border-4 border-indigo-500/65 rounded-full"
+          initial={{ right: '-200px', top: '75%' }}
+          animate={{ right: '100%', top: '25%' }}
+          transition={{
+            duration: 25,
+            ease: "linear",
+            repeat: Infinity,
+          }}
+          style={{
+            boxShadow: '0 0 15px 2px rgba(99, 102, 241, 0.5)'
+          }}
+        ></motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black opacity-80"></div>
+      </div>
+      
       {/* Sidebar */}
       <ChatSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative z-10">
         {/* Header */}
         <ChatHeader toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
         
         {/* Messages */}
         <motion.div 
-          className="flex-1 overflow-y-auto p-4 space-y-4"
+          className="flex-1 overflow-y-auto p-6 space-y-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -135,21 +183,21 @@ export default function PBChatPage() {
         </motion.div>
         
         {/* Input area */}
-        <div className="border-t border-gray-800 p-4">
+        <div className="border-t border-gray-800/30 p-4 backdrop-blur-sm bg-black/30">
           <form onSubmit={handleSubmit} className="flex space-x-2">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Ask about market analysis, trading advice, or risk management..."
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 bg-gray-900/80 border border-gray-700/50 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 placeholder-gray-500"
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
-              className={`bg-blue-600 hover:bg-blue-700 rounded-lg p-2 transition-colors ${!inputValue.trim() || isTyping ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg p-3 transition-all ${!inputValue.trim() || isTyping ? 'opacity-50 cursor-not-allowed' : 'shadow-lg shadow-blue-500/20'}`}
             >
-              <PaperAirplaneIcon className="w-6 h-6" />
+              <PaperAirplaneIcon className="w-5 h-5" />
             </button>
           </form>
         </div>
