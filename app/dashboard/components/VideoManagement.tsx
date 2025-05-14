@@ -26,6 +26,7 @@ interface CourseCardProps {
   onExpand: (courseId: string) => void;
   onChapterExpand: (chapterId: string) => void;
   onManageChapters: (courseId: string) => void;
+  onEditCourse: (courseId: string) => void;
   isExpanded: boolean;
   expandedChapterId: string | null;
   onVideoClick: (video: Video) => void;
@@ -51,7 +52,7 @@ function ResourceIcon({ type }: { type: Resource['type'] }) {
   }
 }
 
-function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExpanded, expandedChapterId, onVideoClick, onResourceClick }: CourseCardProps) {
+function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, onEditCourse, isExpanded, expandedChapterId, onVideoClick, onResourceClick }: CourseCardProps) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -87,11 +88,18 @@ function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExp
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => onEditCourse(course.id)}
+              className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              title="Edit Course"
+            >
+              <PencilIcon className="w-5 h-5" />
+            </button>
+            <button
               onClick={() => onManageChapters(course.id)}
               className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
               title="Manage Chapters"
             >
-              <PencilIcon className="w-5 h-5" />
+              <DocumentIcon className="w-5 h-5" />
             </button>
             <button
               onClick={() => onExpand(course.id)}
@@ -256,6 +264,7 @@ export default function VideoManagement() {
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
   const [expandedChapterId, setExpandedChapterId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [isChapterManagerOpen, setIsChapterManagerOpen] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -332,6 +341,10 @@ export default function VideoManagement() {
               setSelectedCourseId(courseId);
               setIsChapterManagerOpen(true);
             }}
+            onEditCourse={(courseId) => {
+              setSelectedCourseId(courseId);
+              setIsEditModalOpen(true);
+            }}
             isExpanded={expandedCourseId === course.id}
             expandedChapterId={expandedChapterId}
             onVideoClick={handleVideoClick}
@@ -357,10 +370,45 @@ export default function VideoManagement() {
                 throw new Error('Failed to create course');
               }
 
-              const newCourse = await response.json();
-              setCourses(prev => [newCourse, ...prev]);
+              const { course } = await response.json();
+              setCourses([...courses, course]);
             } catch (error) {
               console.error('Error creating course:', error);
+            }
+          }}
+        />
+      )}
+
+      {isEditModalOpen && selectedCourseId && (
+        <CreateCourseForm
+          existingCourse={courses.find(c => c.id === selectedCourseId)}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={async (courseData) => {
+            try {
+              // Update existing course
+              const response = await fetch(`/api/courses/${selectedCourseId}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  ...courseData,
+                  id: selectedCourseId
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to update course');
+              }
+
+              const { course } = await response.json();
+              
+              // Update the courses list with the updated course
+              setCourses(prevCourses => 
+                prevCourses.map(c => c.id === selectedCourseId ? course : c)
+              );
+            } catch (error) {
+              console.error('Error updating course:', error);
             }
           }}
         />

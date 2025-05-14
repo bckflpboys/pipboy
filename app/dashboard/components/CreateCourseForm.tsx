@@ -12,9 +12,12 @@ import {
 interface CreateCourseFormProps {
   onClose: () => void;
   onSubmit: (course: Omit<Course, 'id' | 'chapters' | 'totalVideos' | 'totalDuration'>) => void;
+  existingCourse?: Course; // Optional existing course for editing mode
 }
 
-export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseFormProps) {
+export default function CreateCourseForm({ onClose, onSubmit, existingCourse }: CreateCourseFormProps) {
+  // Determine if we're in edit mode
+  const isEditMode = !!existingCourse;
   interface VideoUpload extends Omit<Video, 'id'> {
     file?: File;
   }
@@ -38,11 +41,29 @@ export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseForm
     status: Course['status'];
     chapters: ChapterUpload[];
   }>({
-    title: '',
-    description: '',
-    thumbnail: '',
-    status: 'draft' as Course['status'],
-    chapters: [{
+    title: existingCourse?.title || '',
+    description: existingCourse?.description || '',
+    thumbnail: existingCourse?.thumbnail || '',
+    status: existingCourse?.status || 'draft' as Course['status'],
+    chapters: existingCourse?.chapters?.length ? existingCourse.chapters.map(chapter => ({
+      title: chapter.title,
+      description: chapter.description,
+      order: chapter.order,
+      videos: chapter.videos.map(video => ({
+        title: video.title,
+        description: video.description,
+        url: video.url,
+        thumbnail: video.thumbnail,
+        duration: video.duration,
+        order: video.order
+      })),
+      resources: chapter.resources.map(resource => ({
+        title: resource.title,
+        type: resource.type,
+        url: resource.url,
+        size: resource.size
+      }))
+    })) : [{
       title: 'Chapter 1',
       description: '',
       videos: [],
@@ -68,13 +89,30 @@ export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseForm
     setIsSubmitting(true);
 
     try {
-      const form = new FormData();
-      
-      // Add course data with files
+      // Prepare course data
       const courseData = {
         title: formData.title,
         description: formData.description,
         status: formData.status,
+        thumbnail: formData.thumbnail,
+        createdAt: existingCourse?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // If we're in edit mode, we'll use the onSubmit callback directly
+      // The parent component (VideoManagement) will handle the API call
+      if (isEditMode) {
+        await onSubmit(courseData);
+        onClose();
+        return;
+      }
+
+      // For new courses, we'll handle the API call here
+      const form = new FormData();
+      
+      // Add course data with files for new course
+      const newCourseData = {
+        ...courseData,
         chapters: formData.chapters.map(chapter => ({
           ...chapter,
           videos: chapter.videos.map(video => ({
@@ -90,10 +128,9 @@ export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseForm
             file: resource.file // This will be handled by the API
           }))
         })),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: new Date().toISOString()
       };
-      form.append('courseData', JSON.stringify(courseData));
+      form.append('courseData', JSON.stringify(newCourseData));
 
       // Add thumbnail
       if (thumbnailFile) {
@@ -115,7 +152,7 @@ export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseForm
 
       onClose();
     } catch (error) {
-      console.error('Error creating course:', error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} course:`, error);
     } finally {
       setIsSubmitting(false);
     }
@@ -135,7 +172,7 @@ export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseForm
         className="bg-gray-900 rounded-lg w-full max-w-lg overflow-hidden"
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h2 className="text-lg font-semibold text-white">Create New Course</h2>
+          <h2 className="text-lg font-semibold text-white">{isEditMode ? 'Edit Course' : 'Create New Course'}</h2>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
@@ -252,10 +289,10 @@ export default function CreateCourseForm({ onClose, onSubmit }: CreateCourseForm
               {isSubmitting ? (
                 <>
                   <ArrowUpTrayIcon className="w-5 h-5 animate-bounce" />
-                  Creating...
+                  {isEditMode ? 'Saving...' : 'Creating...'}
                 </>
               ) : (
-                'Create Course'
+                isEditMode ? 'Save Changes' : 'Create Course'
               )}
             </button>
           </div>
