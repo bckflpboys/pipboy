@@ -16,10 +16,53 @@ export default function TradingBotPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <div className="relative h-[70vh] overflow-hidden">
+      <div className="relative h-[70vh] overflow-hidden pt-16 md:pt-20">
         {/* Background */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 animate-gradient"></div>
+          {/* No central pulsing glow - removed as requested */}
+          
+          {/* Moving rings - brighter version */}
+          <motion.div 
+            className="absolute w-[300px] h-[300px] border-4 border-blue-500/60 rounded-full"
+            initial={{ left: '-150px', top: '30%' }}
+            animate={{ left: '100%', top: '70%' }}
+            transition={{
+              duration: 20,
+              ease: "linear",
+              repeat: Infinity,
+            }}
+            style={{
+              boxShadow: '0 0 15px 2px rgba(59, 130, 246, 0.5)'
+            }}
+          ></motion.div>
+          
+          <motion.div 
+            className="absolute w-[200px] h-[200px] border-4 border-purple-500/70 rounded-full"
+            initial={{ top: '-100px', left: '60%' }}
+            animate={{ top: '100%', left: '20%' }}
+            transition={{
+              duration: 15,
+              ease: "linear",
+              repeat: Infinity,
+            }}
+            style={{
+              boxShadow: '0 0 15px 2px rgba(147, 51, 234, 0.5)'
+            }}
+          ></motion.div>
+          
+          <motion.div 
+            className="absolute w-[400px] h-[400px] border-4 border-indigo-500/65 rounded-full"
+            initial={{ right: '-200px', top: '75%' }}
+            animate={{ right: '100%', top: '25%' }}
+            transition={{
+              duration: 25,
+              ease: "linear",
+              repeat: Infinity,
+            }}
+            style={{
+              boxShadow: '0 0 15px 2px rgba(99, 102, 241, 0.5)'
+            }}
+          ></motion.div>
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black"></div>
         </div>
@@ -30,7 +73,7 @@ export default function TradingBotPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="max-w-4xl"
+            className="max-w-4xl flex flex-col items-center"
           >
             <div className="relative inline-block mb-6">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur-lg opacity-50"></div>
@@ -39,7 +82,45 @@ export default function TradingBotPage() {
               </h1>
             </div>
             
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">PIPBOY TRADING CHAT BOT</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 relative block w-full">
+              PIPBOY TRADING <span className="relative inline-block">
+                <motion.span 
+                  className="relative inline-block"
+                  animate={{
+                    color: [
+                      'rgb(255, 255, 255)',
+                      'rgb(96, 165, 250)',
+                      'rgb(168, 85, 247)',
+                      'rgb(255, 255, 255)'
+                    ]
+                  }}
+                  transition={{
+                    duration: 3,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "loop"
+                  }}
+                >
+                  CHAT BOT
+                </motion.span>
+                <div className="relative w-full h-2 mt-1">
+                  <motion.div 
+                    className="absolute bottom-0 left-0 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ 
+                      duration: 1.5, 
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                      repeatType: "reverse"
+                    }}
+                    style={{
+                      boxShadow: '0 0 10px rgba(96, 165, 250, 0.8)'
+                    }}
+                  />
+                </div>
+              </span>
+            </h2>
             
             <div className="flex items-center justify-center mb-8">
               <span className="bg-blue-500/20 backdrop-blur-sm text-blue-400 text-sm px-4 py-2 rounded-full border border-blue-500/50 font-semibold">
