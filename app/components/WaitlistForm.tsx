@@ -10,12 +10,14 @@ interface WaitlistFormProps {
 }
 
 const referralSources = [
-  "Social Media",
+  "Website",
   "Friend or Colleague",
   "Search Engine",
-  "Trading Community",
+  "Discord Trading Community",
+  "Telegram Trading Community",
   "Email Newsletter",
   "YouTube",
+  "Instagram",
   "Other"
 ];
 
