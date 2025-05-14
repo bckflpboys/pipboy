@@ -39,9 +39,6 @@ export async function POST(req: NextRequest) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
 
-    // Add unique identifier to ensure uniqueness
-    data.slug = `${data.slug}-${blogId}`;
-
     const blog = await Blog.create(data);
     return NextResponse.json(blog);
   } catch (error: unknown) {
@@ -96,7 +93,7 @@ export async function GET(req: NextRequest) {
     }
 
     const blogs = await Blog.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ isFeatured: -1, createdAt: -1 }) // Sort featured posts first, then by date
       .select('-__v');
 
     return NextResponse.json(blogs);

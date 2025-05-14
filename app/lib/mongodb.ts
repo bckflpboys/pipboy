@@ -82,6 +82,10 @@ const blogSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true,
 });

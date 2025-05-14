@@ -142,3 +142,44 @@ export async function DELETE(
     );
   }
 }
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: RouteSegmentConfig
+) {
+  try {
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: 'Blog ID is required' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const { isFeatured } = body;
+
+    // Ensure MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.MONGODB_URI!, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
+    }
+
+    const blog = await Blog.findByIdAndUpdate(
+      id,
+      { isFeatured },
+      { new: true }
+    );
+
+    if (!blog) {
+      return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(blog);
+  } catch (error: unknown) {
+    console.error('Error updating blog:', error);
+    return NextResponse.json(
+      { error: 'Failed to update blog post' },
+      { status: 500 }
+    );
+  }
+}

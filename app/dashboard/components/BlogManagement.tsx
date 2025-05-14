@@ -38,6 +38,7 @@ export default function BlogManagement() {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [excerpt, setExcerpt] = useState('');
+  const [isFeatured, setIsFeatured] = useState(false);
 
   const fetchBlogs = useCallback(async () => {
     try {
@@ -132,6 +133,7 @@ export default function BlogManagement() {
         status: 'draft',
         readTime: calculateReadTime(content),
         publishedAt: new Date(),
+        isFeatured,
       };
 
       const response = await fetch('/api/blog', {
@@ -176,6 +178,30 @@ export default function BlogManagement() {
     }
   };
 
+  const toggleFeatured = async (blogId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/blog/${blogId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          isFeatured: !currentStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error);
+      }
+
+      toast.success(`Post ${!currentStatus ? 'featured' : 'unfeatured'} successfully`);
+      fetchBlogs();
+    } catch (error) {
+      toast.error(`Failed to update featured status: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
   const resetForm = () => {
     setTitle('');
     setContent('');
@@ -187,6 +213,7 @@ export default function BlogManagement() {
     setCoverArtPreview(null);
     setIsUrlInput(false);
     setSelectedCategory('');
+    setIsFeatured(false);
   };
 
   const calculateReadTime = (text: string): number => {
@@ -337,6 +364,18 @@ export default function BlogManagement() {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isFeatured"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-900/50 border-gray-800 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="isFeatured" className="text-sm font-medium text-gray-300 cursor-pointer">
+                Feature this post (will appear in the banner)
+              </label>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -518,6 +557,18 @@ export default function BlogManagement() {
                               Edit post
                             </button>
                             <button
+                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800"
+                              onClick={() => {
+                                if (blog._id) toggleFeatured(blog._id, blog.isFeatured || false);
+                                toggleMenu(blog._id || '');
+                              }}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                              </svg>
+                              {blog.isFeatured ? 'Remove from featured' : 'Mark as featured'}
+                            </button>
+                            <button
                               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800"
                               onClick={() => {
                                 if (blog._id) handleDelete(blog._id);
@@ -533,24 +584,26 @@ export default function BlogManagement() {
                     </div>
                   </div>
 
-                  <p className="text-gray-400 text-sm line-clamp-2 mb-4">
-                    {blog.excerpt}
-                  </p>
-
-                  <div className="mt-auto pt-4 border-t border-gray-800">
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                      <div className="flex items-center gap-1.5">
-                        <UserIcon className="w-4 h-4" />
-                        {blog.author}
-                      </div>
-                      <div className="flex items-center gap-1.5">
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-lg font-semibold">
+                        {blog.title}
+                      </h3>
+                      {blog.isFeatured && (
+                        <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full text-xs border border-blue-500/50">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-400 flex items-center gap-4">
+                      <span className="flex items-center gap-1">
                         <CalendarIcon className="w-4 h-4" />
-                        {new Date(blog.publishedAt || blog.createdAt || Date.now()).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </div>
+                        {new Date(blog.publishedAt).toLocaleDateString()}
+                      </span>
+                      <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <ClockIcon className="w-3.5 h-3.5" />
+                        {calculateReadTime(blog.content)} min read
+                      </span>
                       <div className="flex items-center gap-1.5">
                         <TagIcon className="w-4 h-4" />
                         <div className="flex items-center gap-1">

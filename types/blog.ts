@@ -1,6 +1,7 @@
 import { BlogCategory } from "../app/utils/constants";
 
 export interface BlogPost {
+  isFeatured?: boolean;
   _id?: string;
   title: string;
   content: string;
