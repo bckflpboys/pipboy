@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { PaperAirplaneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import ChatMessage from './components/ChatMessage';
 import ChatHeader from './components/ChatHeader';
 import ChatSidebar from './components/ChatSidebar';
@@ -16,7 +16,13 @@ interface Message {
   id: string;
   content: string;
   sender: 'user' | 'bot';
-  timestamp: Date;
+  timestamp: Date | string;
+  attachment?: {
+    name: string;
+    type: string;
+    url: string;
+    size: number;
+  };
 }
 
 // Sample welcome messages
@@ -54,6 +60,8 @@ export default function PBChatPage() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom of messages
@@ -61,11 +69,37 @@ export default function PBChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  // Clear selected file
+  const clearSelectedFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Create object URL for file preview
+  const createFileAttachment = (file: File) => {
+    const url = URL.createObjectURL(file);
+    return {
+      name: file.name,
+      type: file.type,
+      url: url,
+      size: file.size
+    };
+  };
+
   // Handle message submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() && !selectedFile) return;
     
     // Add user message
     const userMessage: Message = {
@@ -74,9 +108,15 @@ export default function PBChatPage() {
       sender: 'user',
       timestamp: new Date()
     };
+
+    // Add file attachment if present
+    if (selectedFile) {
+      userMessage.attachment = createFileAttachment(selectedFile);
+    }
     
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    clearSelectedFile();
     setIsTyping(true);
     
     // Simulate bot response (in a real app, this would be an API call)
@@ -188,20 +228,79 @@ export default function PBChatPage() {
         
         {/* Input area */}
         <div className="border-t border-gray-800/30 p-4 backdrop-blur-sm bg-black/30">
-          <form onSubmit={handleSubmit} className="flex space-x-2">
+          {/* File preview */}
+          {selectedFile && (
+            <div className="mb-3 p-2 sm:p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 flex items-center">
+              <div className="flex-1 flex items-center overflow-hidden">
+                <div className="mr-2 p-1.5 sm:p-2 rounded-full bg-blue-500/20 flex-shrink-0">
+                  {selectedFile.type.startsWith('image/') ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  ) : selectedFile.type.startsWith('application/pdf') ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 max-w-[calc(100%-70px)] sm:max-w-[calc(100%-90px)]">
+                  <p className="text-xs sm:text-sm font-medium truncate">
+                    {selectedFile.name.length > 25 
+                      ? selectedFile.name.substring(0, 20) + '...' + selectedFile.name.substring(selectedFile.name.lastIndexOf('.'))
+                      : selectedFile.name
+                    }
+                  </p>
+                  <p className="text-xs text-gray-400 hidden xs:block">{selectedFile.size < 1024 ? `${selectedFile.size} bytes` : selectedFile.size < 1024 * 1024 ? `${(selectedFile.size / 1024).toFixed(1)} KB` : `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`}</p>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={clearSelectedFile}
+                className="ml-1 sm:ml-2 p-1 sm:p-1.5 text-gray-400 hover:text-gray-200 rounded-full hover:bg-gray-700/50 transition-colors flex-shrink-0"
+              >
+                <XMarkIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="flex space-x-1 sm:space-x-2">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask about market analysis, trading advice, or risk management..."
-              className="flex-1 bg-gray-900/80 border border-gray-700/50 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 placeholder-gray-500"
+              placeholder="Ask about trading or market analysis..."
+              className="flex-1 bg-gray-900/80 border border-gray-700/50 rounded-lg px-2 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/50 placeholder-gray-500 min-w-0"
+            />
+            
+            {/* File upload button */}
+            <input 
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
             />
             <button
-              type="submit"
-              disabled={!inputValue.trim() || isTyping}
-              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg p-3 transition-all ${!inputValue.trim() || isTyping ? 'opacity-50 cursor-not-allowed' : 'shadow-lg shadow-blue-500/20'}`}
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isTyping}
+              className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-2 sm:p-3 transition-all border border-gray-700/50 flex-shrink-0 ${isTyping ? 'opacity-50 cursor-not-allowed' : ''}`}
+              aria-label="Attach file"
             >
-              <PaperAirplaneIcon className="w-5 h-5" />
+              <PaperClipIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300" />
+            </button>
+            
+            <button
+              type="submit"
+              disabled={((!inputValue.trim() && !selectedFile) || isTyping)}
+              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg p-2 sm:p-3 transition-all flex-shrink-0 ${(!inputValue.trim() && !selectedFile) || isTyping ? 'opacity-50 cursor-not-allowed' : 'shadow-lg shadow-blue-500/20'}`}
+              aria-label="Send message"
+            >
+              <PaperAirplaneIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </form>
         </div>

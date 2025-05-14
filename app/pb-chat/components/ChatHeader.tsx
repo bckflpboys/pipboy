@@ -31,7 +31,7 @@ export default function ChatHeader({ toggleSidebar }: ChatHeaderProps) {
             </div>
           </div>
           
-          <div>
+          {/* <div>
             <h1 className="font-bold text-lg">TRADING <motion.span 
               animate={{
                 color: [
@@ -52,7 +52,7 @@ export default function ChatHeader({ toggleSidebar }: ChatHeaderProps) {
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
               <span className="text-xs text-gray-400">Online</span>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       

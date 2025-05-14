@@ -21,15 +21,34 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
   const [activeTab, setActiveTab] = useState<'chats' | 'templates'>('chats');
   
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
-        <motion.div
-          initial={{ x: -300, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -300, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="w-80 h-full bg-black/70 backdrop-blur-lg border-r border-gray-800/50 flex flex-col z-20"
-        >
+        <>
+          {/* Overlay */}
+          <motion.div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Sidebar */}
+          <motion.div
+            initial={{ x: -300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -300, opacity: 0 }}
+            transition={{ 
+              type: 'spring', 
+              stiffness: 250, 
+              damping: 25,
+              mass: 1,
+              restDelta: 0.001,
+              restSpeed: 0.001
+            }}
+            className="w-80 h-full bg-black/70 backdrop-blur-lg border-r border-gray-800/50 flex flex-col z-20 relative"
+          >
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-800/50 flex items-center justify-between">
             <div className="flex items-center">
@@ -153,6 +172,7 @@ export default function ChatSidebar({ isOpen, setIsOpen }: ChatSidebarProps) {
             </div>
           </div>
         </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
