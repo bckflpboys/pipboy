@@ -16,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import CreateCourseForm from './CreateCourseForm';
 import ChapterManager from './ChapterManager';
+import VideoPlayer from '../../components/VideoPlayer';
 import type { Course, Chapter, Video, Resource } from '../../models/Course';
 
 interface CourseCardProps {
@@ -25,12 +26,14 @@ interface CourseCardProps {
   onManageChapters: (courseId: string) => void;
   isExpanded: boolean;
   expandedChapterId: string | null;
+  onVideoClick: (video: Video) => void;
 }
 
 interface ChapterCardProps {
   chapter: Chapter;
   onExpand: (chapterId: string) => void;
   isExpanded: boolean;
+  onVideoClick: (video: Video) => void;
 }
 
 function ResourceIcon({ type }: { type: Resource['type'] }) {
@@ -44,7 +47,7 @@ function ResourceIcon({ type }: { type: Resource['type'] }) {
   }
 }
 
-function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExpanded, expandedChapterId }: CourseCardProps) {
+function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExpanded, expandedChapterId, onVideoClick }: CourseCardProps) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -102,6 +105,7 @@ function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExp
               chapter={chapter}
               onExpand={onChapterExpand}
               isExpanded={expandedChapterId === chapter.id}
+              onVideoClick={onVideoClick}
             />
           ))}
         </div>
@@ -110,7 +114,7 @@ function CourseCard({ course, onExpand, onChapterExpand, onManageChapters, isExp
   );
 }
 
-function ChapterCard({ chapter, onExpand, isExpanded }: ChapterCardProps) {
+function ChapterCard({ chapter, onExpand, isExpanded, onVideoClick }: ChapterCardProps) {
   return (
     <div className="bg-gray-900/30">
       <div className="p-4">
@@ -138,26 +142,19 @@ function ChapterCard({ chapter, onExpand, isExpanded }: ChapterCardProps) {
             {chapter.videos.map((video: Video) => (
               <div 
                 key={video.id}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors group"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors group cursor-pointer"
+                onClick={() => onVideoClick(video)}
               >
-                <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800 bg-gray-900">
-                  {video.thumbnail ? (
-                    <>
-                      <Image
-                        src={video.thumbnail}
-                        alt={video.title}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <PlayCircleIcon className="w-8 h-8 text-white" />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <PlayCircleIcon className="w-8 h-8 text-gray-600" />
-                    </div>
-                  )}
+                <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800">
+                  <Image
+                    src={video.thumbnail}
+                    alt={video.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PlayCircleIcon className="w-8 h-8 text-white" />
+                  </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h5 className="text-sm font-medium text-white truncate">{video.title}</h5>
@@ -232,6 +229,7 @@ export default function VideoManagement() {
   const [isChapterManagerOpen, setIsChapterManagerOpen] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -268,6 +266,10 @@ export default function VideoManagement() {
     setExpandedChapterId(expandedChapterId === chapterId ? null : chapterId);
   };
 
+  const handleVideoClick = (video: Video) => {
+    setSelectedVideo(video);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -296,6 +298,7 @@ export default function VideoManagement() {
             }}
             isExpanded={expandedCourseId === course.id}
             expandedChapterId={expandedChapterId}
+            onVideoClick={handleVideoClick}
           />
         ))}
       </div>
@@ -353,6 +356,14 @@ export default function VideoManagement() {
               console.error('Error updating chapters:', error);
             }
           }}
+        />
+      )}
+
+      {selectedVideo && (
+        <VideoPlayer
+          videoUrl={selectedVideo.url}
+          title={selectedVideo.title}
+          onClose={() => setSelectedVideo(null)}
         />
       )}
     </div>
