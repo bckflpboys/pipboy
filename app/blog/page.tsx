@@ -6,6 +6,7 @@ import type { BlogPost } from '../../types/blog';
 import BlogSkeleton from '../components/BlogSkeleton';
 import BlogCard from '../components/BlogCard';
 import FeaturedBlogBanner from '../components/FeaturedBlogBanner';
+import BlogSearch from '../components/BlogSearch';
 
 export default function BlogPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -13,29 +14,33 @@ export default function BlogPage() {
   const [regularBlogs, setRegularBlogs] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const response = await fetch('/api/blog');
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to fetch blogs');
-        }
-        const data = await response.json();
-        setBlogs(data);
-        
-        // Separate featured and regular blogs
-        const featured = data.filter((blog: BlogPost) => blog.isFeatured);
-        const regular = data.filter((blog: BlogPost) => !blog.isFeatured);
-        setFeaturedBlogs(featured);
-        setRegularBlogs(regular);
-      } catch (error) {
-        console.error('Error fetching blogs:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchBlogs = async (search: string = '', category: string = '') => {
+    try {
+      setIsLoading(true);
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.append('search', search);
+      if (category) queryParams.append('category', category);
 
+      const response = await fetch(`/api/blog?${queryParams.toString()}`);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to fetch blogs');
+      }
+      const data = await response.json();
+      setBlogs(data);
+      
+      // Set featured blogs and all blogs for regular display
+      const featured = data.filter((blog: BlogPost) => blog.isFeatured);
+      setFeaturedBlogs(featured);
+      setRegularBlogs(data);
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchBlogs();
   }, []);
 
@@ -55,7 +60,7 @@ export default function BlogPage() {
           )}
 
           {/* Regular Blog Posts */}
-          <div className="container mx-auto px-4 py-20">
+          <div className="container mx-auto px-4 pt-4 pb-20">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -63,10 +68,15 @@ export default function BlogPage() {
               className="text-center max-w-3xl mx-auto mb-16"
             >
               <h2 className="text-3xl font-bold mb-6">Latest Articles</h2>
-              <p className="text-gray-400">
+              <p className="text-gray-400 mb-8">
                 Dive deep into trading knowledge with our expert analysis, strategies, and insights.
                 Stay ahead of the market with our latest research and educational content.
               </p>
+              <BlogSearch 
+                onSearch={(search, category) => {
+                  fetchBlogs(search, category);
+                }}
+              />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

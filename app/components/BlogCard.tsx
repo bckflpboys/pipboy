@@ -17,9 +17,9 @@ export default function BlogCard({ post, index }: BlogCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group bg-gray-900/30 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300"
+      className="group bg-gray-900/30 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300 flex flex-col h-[32rem]"
     >
-      <Link href={`/blog/${post.slug}`}>
+      <Link href={`/blog/${post.slug}`} className="flex flex-col h-full">
         <div className="relative h-48 overflow-hidden">
           <Image
             src={post.coverArt || '/images/default-blog-cover.jpg'}
@@ -36,7 +36,7 @@ export default function BlogCard({ post, index }: BlogCardProps) {
           </div>
         </div>
         
-        <div className="p-6">
+        <div className="p-6 flex flex-col flex-grow">
           <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
             <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { 
               month: 'short',
@@ -47,9 +47,15 @@ export default function BlogCard({ post, index }: BlogCardProps) {
           <h3 className="text-xl font-semibold mb-3 group-hover:text-blue-400 transition-colors">
             {post.title}
           </h3>
-          <p className="text-gray-400 text-sm line-clamp-2">
+          <p className="text-gray-400 text-sm line-clamp-3 mb-4">
             {post.excerpt}
           </p>
+          <div className="mt-auto flex items-center justify-between">
+            <span className="text-blue-400 text-sm group-hover:text-blue-300 transition-colors">Read More</span>
+            <svg className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
         </div>
       </Link>
     </motion.article>
