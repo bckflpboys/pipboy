@@ -7,193 +7,321 @@ import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
-  ArrowUpTrayIcon,
-  EllipsisVerticalIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DocumentIcon,
+  LinkIcon,
+  DocumentArrowDownIcon,
+  PlayCircleIcon
 } from '@heroicons/react/24/outline';
+import type { Course, Chapter, Video, Resource } from '../../models/Course';
 
-interface Video {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  views: number;
-  createdAt: string;
+interface CourseCardProps {
+  course: Course;
+  onExpand: (courseId: string) => void;
+  onChapterExpand: (chapterId: string) => void;
+  isExpanded: boolean;
+  expandedChapterId: string | null;
+}
+
+interface ChapterCardProps {
+  chapter: Chapter;
+  onExpand: (chapterId: string) => void;
+  isExpanded: boolean;
+}
+
+function ResourceIcon({ type }: { type: Resource['type'] }) {
+  switch (type) {
+    case 'pdf':
+      return <DocumentIcon className="w-5 h-5" />;
+    case 'link':
+      return <LinkIcon className="w-5 h-5" />;
+    case 'file':
+      return <DocumentArrowDownIcon className="w-5 h-5" />;
+  }
+}
+
+function CourseCard({ course, onExpand, onChapterExpand, isExpanded, expandedChapterId }: CourseCardProps) {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg overflow-hidden"
+    >
+      <div className="p-4">
+        <div className="flex items-start gap-4">
+          <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-800">
+            <Image
+              src={course.thumbnail}
+              alt={course.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-white truncate">{course.title}</h3>
+            <p className="text-sm text-gray-400 line-clamp-2 mt-1">{course.description}</p>
+            <div className="flex items-center gap-4 mt-2">
+              <span className="text-sm text-gray-400">{course.totalVideos} videos</span>
+              <span className="text-sm text-gray-400">{course.totalDuration}</span>
+              <span className={`text-sm ${course.status === 'published' ? 'text-green-500' : 'text-yellow-500'}`}>
+                {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => onExpand(course.id)}
+            className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+          >
+            {isExpanded ? (
+              <ChevronUpIcon className="w-5 h-5" />
+            ) : (
+              <ChevronDownIcon className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="border-t border-gray-800 divide-y divide-gray-800">
+          {course.chapters.map((chapter) => (
+            <ChapterCard
+              key={chapter.id}
+              chapter={chapter}
+              onExpand={onChapterExpand}
+              isExpanded={expandedChapterId === chapter.id}
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function ChapterCard({ chapter, onExpand, isExpanded }: ChapterCardProps) {
+  return (
+    <div className="bg-gray-900/30">
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="text-white font-medium">{chapter.title}</h4>
+            <p className="text-sm text-gray-400 mt-1">{chapter.description}</p>
+          </div>
+          <button
+            onClick={() => onExpand(chapter.id)}
+            className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+          >
+            {isExpanded ? (
+              <ChevronUpIcon className="w-5 h-5" />
+            ) : (
+              <ChevronDownIcon className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="px-4 pb-4">
+          <div className="space-y-3">
+            {chapter.videos.map((video: Video) => (
+              <div 
+                key={video.id}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors group"
+              >
+                <div className="relative w-20 h-12 rounded overflow-hidden flex-shrink-0 border border-gray-800">
+                  <Image
+                    src={video.thumbnail}
+                    alt={video.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PlayCircleIcon className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h5 className="text-sm font-medium text-white truncate">{video.title}</h5>
+                  <p className="text-xs text-gray-400 mt-0.5">{video.duration}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button 
+                    className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+                    title="Edit video"
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                  </button>
+                  <button 
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
+                    title="Delete video"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {chapter.resources.length > 0 && (
+            <div className="mt-4">
+              <h5 className="text-sm font-medium text-gray-400 mb-2">Resources</h5>
+              <div className="space-y-2">
+                {chapter.resources.map((resource: Resource) => (
+                  <div 
+                    key={resource.id}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/30 transition-colors"
+                  >
+                    <div className="p-2 bg-gray-900/50 rounded-lg">
+                      <ResourceIcon type={resource.type} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h6 className="text-sm font-medium text-white truncate">{resource.title}</h6>
+                      {resource.size && (
+                        <p className="text-xs text-gray-400 mt-0.5">{resource.size}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button 
+                        className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
+                        title="Edit resource"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button 
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
+                        title="Delete resource"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function VideoManagement() {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [videos] = useState<Video[]>([
-    // Dummy data for demonstration
+  const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
+  const [expandedChapterId, setExpandedChapterId] = useState<string | null>(null);
+  const [courses] = useState<Course[]>([
     {
       id: '1',
-      title: 'Getting Started with React',
-      description: 'Learn the basics of React and build your first component',
+      title: 'Complete React Developer Course',
+      description: 'Master React.js from the ground up. Learn hooks, context, Redux, and more with practical projects.',
       thumbnail: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2',
-      duration: '10:30',
-      views: 1234,
+      totalVideos: 45,
+      totalDuration: '12h 30m',
       createdAt: '2024-04-28',
-    },
-    // Add more dummy videos as needed
+      updatedAt: '2024-05-14',
+      status: 'published',
+      chapters: [
+        {
+          id: 'ch1',
+          title: 'Introduction to React',
+          description: 'Get started with React fundamentals',
+          order: 1,
+          videos: [
+            {
+              id: 'v1',
+              title: 'What is React?',
+              description: 'Introduction to React and its core concepts',
+              url: 'https://example.com/video1.mp4',
+              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
+              duration: '10:30',
+              order: 1
+            },
+            {
+              id: 'v2',
+              title: 'Setting Up Your Environment',
+              description: 'Configure your development environment',
+              url: 'https://example.com/video2.mp4',
+              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
+              duration: '15:45',
+              order: 2
+            }
+          ],
+          resources: [
+            {
+              id: 'r1',
+              title: 'React Cheat Sheet',
+              type: 'pdf',
+              url: 'https://example.com/react-cheatsheet.pdf',
+              size: '2.5 MB'
+            },
+            {
+              id: 'r2',
+              title: 'React Documentation',
+              type: 'link',
+              url: 'https://react.dev'
+            }
+          ]
+        },
+        {
+          id: 'ch2',
+          title: 'React Hooks',
+          description: 'Deep dive into React Hooks',
+          order: 2,
+          videos: [
+            {
+              id: 'v3',
+              title: 'useState Hook',
+              description: 'Learn about state management with useState',
+              url: 'https://example.com/video3.mp4',
+              thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
+              duration: '20:15',
+              order: 1
+            }
+          ],
+          resources: [
+            {
+              id: 'r3',
+              title: 'Hooks Reference Guide',
+              type: 'file',
+              url: 'https://example.com/hooks-guide.zip',
+              size: '1.8 MB'
+            }
+          ]
+        }
+      ]
+    }
   ]);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+  const handleCourseExpand = (courseId: string) => {
+    setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
   };
 
-  const toggleMenu = (videoId: string) => {
-    setActiveMenu(activeMenu === videoId ? null : videoId);
+  const handleChapterExpand = (chapterId: string) => {
+    setExpandedChapterId(expandedChapterId === chapterId ? null : chapterId);
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-        <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">
-          Video Management
-        </h1>
-        <label className="w-full sm:w-auto group relative flex justify-center rounded-lg bg-blue-600 px-3 py-2 sm:px-4 sm:py-3 text-sm font-semibold text-white hover:bg-blue-500 cursor-pointer transition-all duration-200">
-          <input
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-          <PlusIcon className="w-5 h-5 mr-2" />
-          Upload Video
-        </label>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600">
+          Course Management
+        </h2>
+        <button
+          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          <PlusIcon className="w-5 h-5" />
+          New Course
+        </button>
       </div>
 
-      {isUploading && (
-        <div className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-4 sm:p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <ArrowUpTrayIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 animate-bounce" />
-            <div className="flex-1">
-              <div className="h-2 bg-gray-900/50 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-500 transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            </div>
-            <span className="text-sm text-gray-400">{uploadProgress}%</span>
-          </div>
-        </div>
-      )}
-
-      <div className="grid gap-4 sm:gap-6">
-        {videos.map((video) => (
-          <motion.div
-            key={video.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-black/50 backdrop-blur-lg border border-gray-800 rounded-lg p-4 sm:p-6"
-          >
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-              {/* Thumbnail */}
-              <div className="relative w-full sm:w-48 h-48 sm:h-32 rounded-lg overflow-hidden flex-shrink-0">
-                <Image
-                  src={video.thumbnail}
-                  alt={video.title}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute bottom-2 right-2 bg-black/70 px-2 py-1 rounded text-xs">
-                  {video.duration}
-                </div>
-              </div>
-              
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-2">{video.title}</h3>
-                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                      {video.description}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-400">
-                      <span>{video.views.toLocaleString()} views</span>
-                      <span className="hidden sm:inline">•</span>
-                      <span>Uploaded on {video.createdAt}</span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="relative">
-                    {/* Desktop actions */}
-                    <div className="hidden sm:flex flex-col gap-2">
-                      <button 
-                        className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
-                        title="Edit video"
-                      >
-                        <PencilIcon className="w-5 h-5" />
-                      </button>
-                      <button 
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-900/50 rounded-lg transition-colors"
-                        title="Delete video"
-                      >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    {/* Mobile actions */}
-                    <div className="sm:hidden">
-                      <button
-                        onClick={() => toggleMenu(video.id)}
-                        className="p-2 text-gray-400 hover:text-white hover:bg-gray-900/50 rounded-lg transition-colors"
-                      >
-                        <EllipsisVerticalIcon className="w-5 h-5" />
-                      </button>
-
-                      {activeMenu === video.id && (
-                        <div className="absolute right-0 mt-2 w-48 rounded-lg bg-gray-900 shadow-lg ring-1 ring-gray-800 z-10">
-                          <div className="py-1">
-                            <button
-                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800"
-                              onClick={() => {
-                                // Handle edit
-                                toggleMenu(video.id);
-                              }}
-                            >
-                              <PencilIcon className="w-4 h-4" />
-                              Edit video
-                            </button>
-                            <button
-                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800"
-                              onClick={() => {
-                                // Handle delete
-                                toggleMenu(video.id);
-                              }}
-                            >
-                              <TrashIcon className="w-4 h-4" />
-                              Delete video
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+      <div className="space-y-4">
+        {courses.map((course) => (
+          <CourseCard
+            key={course.id}
+            course={course}
+            onExpand={handleCourseExpand}
+            onChapterExpand={handleChapterExpand}
+            isExpanded={expandedCourseId === course.id}
+            expandedChapterId={expandedChapterId}
+          />
         ))}
       </div>
     </div>
