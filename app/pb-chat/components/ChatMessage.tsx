@@ -3,11 +3,12 @@
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
+
 interface Message {
   id: string;
   content: string;
   sender: 'user' | 'bot';
-  timestamp: Date;
+  timestamp: Date | string;
 }
 
 interface ChatMessageProps {
@@ -38,7 +39,12 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </div>
           
           <span className={`text-xs text-gray-500 mt-1 ${isBot ? 'text-left' : 'text-right'}`}>
-            {format(new Date(message.timestamp), 'h:mm a')}
+            {/* Use a stable timestamp to prevent hydration mismatch */}
+            {typeof message.timestamp === 'string' 
+              ? message.timestamp.includes('T') 
+                ? format(new Date(message.timestamp), 'h:mm a') 
+                : message.timestamp
+              : format(message.timestamp, 'h:mm a')}
           </span>
         </div>
       </div>
