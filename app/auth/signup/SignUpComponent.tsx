@@ -1,5 +1,7 @@
 "use client"
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { signIn } from "next-auth/react"
 import Image from "next/image"
 import { useState } from "react"
@@ -13,7 +15,7 @@ type SignUpComponentProps = {
   providers: Record<string, ClientSafeProvider> | null
 }
 
-export default function SignUpComponent({ providers }: SignUpComponentProps) {
+function SignUpComponentInner({ providers }: SignUpComponentProps) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -243,4 +245,14 @@ export default function SignUpComponent({ providers }: SignUpComponentProps) {
       </p>
     </motion.div>
   )
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function SignUpComponent(props) {
+  return (
+    <ClientWrapper>
+      <SignUpComponentInner {...props} />
+    </ClientWrapper>
+  );
 }

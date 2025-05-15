@@ -9,12 +9,15 @@ import NewsletterSection from '@/components/NewsletterSection';
 import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
 import AccessDeniedHandler from '@/components/AccessDeniedHandler';
+import ClientWrapper from '@/components/ClientWrapper';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Handle access denied messages */}
-      <AccessDeniedHandler />
+      {/* Handle access denied messages - wrapped in ClientWrapper */}
+      <ClientWrapper>
+        <AccessDeniedHandler />
+      </ClientWrapper>
       
       <HeroSection />
       <EcosystemSection />

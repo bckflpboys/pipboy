@@ -1,5 +1,7 @@
 "use client";
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,7 +10,7 @@ import { useEffect, useState } from 'react';
 import type { BlogPost } from '../../../types/blog';
 import { toast } from 'sonner';
 
-export default function BlogPost() {
+function BlogPostInner() {
   const params = useParams();
   const router = useRouter();
   const [blog, setBlog] = useState<BlogPost | null>(null);
@@ -338,5 +340,15 @@ export default function BlogPost() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function BlogPost(props) {
+  return (
+    <ClientWrapper>
+      <BlogPostInner {...props} />
+    </ClientWrapper>
   );
 }

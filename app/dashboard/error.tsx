@@ -1,9 +1,11 @@
 'use client'
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function Error({
+function ErrorInner({
   error,
   reset,
 }: {
@@ -39,4 +41,14 @@ export default function Error({
       </div>
     </div>
   )
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function Error(props) {
+  return (
+    <ClientWrapper>
+      <ErrorInner {...props} />
+    </ClientWrapper>
+  );
 }

@@ -1,10 +1,13 @@
 "use client";
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+// Note: This component must be wrapped in a Suspense boundary when used
 
-export default function AccessDeniedHandler() {
+function AccessDeniedHandlerInner() {
   const searchParams = useSearchParams();
   
   useEffect(() => {
@@ -21,4 +24,14 @@ export default function AccessDeniedHandler() {
 
   // This component doesn't render anything visible
   return null;
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function AccessDeniedHandler() {
+  return (
+    <ClientWrapper>
+      <AccessDeniedHandlerInner />
+    </ClientWrapper>
+  );
 }

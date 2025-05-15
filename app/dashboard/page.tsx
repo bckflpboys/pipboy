@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import ClientWrapper from '@/components/ClientWrapper';
 import DashboardSidebar from './components/DashboardSidebar';
 import VideoManagement from './components/VideoManagement';
 import Analytics from './components/Analytics';
@@ -58,8 +59,8 @@ function DashboardContent() {
   );
 }
 
-// Export page component with admin verification
-export default function Page() {
+// Page component with admin verification wrapped in ClientWrapper
+function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
@@ -107,5 +108,14 @@ export default function Page() {
   }
   
   // Only render dashboard for authenticated users (actual admin check is done in useEffect)
-  return session ? <DashboardContent /> : null;
+  return isChecking ? null : (session ? <DashboardContent /> : null);
+}
+
+// Export the wrapped component
+export default function Page() {
+  return (
+    <ClientWrapper>
+      <DashboardPage />
+    </ClientWrapper>
+  );
 }
