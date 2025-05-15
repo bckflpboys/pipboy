@@ -31,7 +31,7 @@ export default function CookiePolicyPage() {
                   web browser and allows the website or a third-party to recognize you and make your next visit easier and the website more useful to you.
                 </p>
                 <p className="text-gray-300 mt-4">
-                  Cookies can be "persistent" or "session" cookies. Persistent cookies remain on your personal computer or mobile device 
+                  Cookies can be &quot;persistent&quot; or &quot;session&quot; cookies. Persistent cookies remain on your personal computer or mobile device 
                   when you go offline, while session cookies are deleted as soon as you close your web browser.
                 </p>
 
@@ -54,7 +54,7 @@ export default function CookiePolicyPage() {
 
                 <h2 className="text-xl font-semibold text-white mt-8 mb-4">4. What Are Your Choices Regarding Cookies</h2>
                 <p className="text-gray-300">
-                  If you'd like to delete cookies or instruct your web browser to delete or refuse cookies, please visit the help pages of your web browser.
+                  If you&apos;d like to delete cookies or instruct your web browser to delete or refuse cookies, please visit the help pages of your web browser.
                 </p>
                 <p className="text-gray-300 mt-4">
                   Please note, however, that if you delete cookies or refuse to accept them, you might not be able to use all of the features we offer, 
