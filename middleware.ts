@@ -6,7 +6,7 @@ import { UserRole } from "@/models/User";
 export function middleware(req: NextRequest) {
   // Check for subdomain
   const hostname = req.headers.get('host') || ''
-  const isPbSubdomain = hostname.startsWith('pb.') || hostname === 'pb.localhost:3000'
+  const isPbSubdomain = hostname.startsWith('pb.') || hostname === 'pb.localhost:3000' || hostname === 'pb.pipboyforever.com'
   
   // Handle PB subdomain requests
   if (isPbSubdomain) {

@@ -66,7 +66,7 @@ const Navbar = () => {
             </Link>
             {isAdmin && (
               <a 
-                href="http://pb.localhost:3000" 
+                href={process.env.NODE_ENV === 'production' ? 'https://pb.pipboyforever.com' : 'http://pb.localhost:3000'} 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
@@ -140,7 +140,7 @@ const Navbar = () => {
           </Link>
           {isAdmin && (
             <a 
-              href="http://pb.localhost:3000" 
+              href={process.env.NODE_ENV === 'production' ? 'https://pb.pipboyforever.com' : 'http://pb.localhost:3000'} 
               target="_blank"
               rel="noopener noreferrer"
               className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
