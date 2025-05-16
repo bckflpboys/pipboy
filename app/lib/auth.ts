@@ -1,6 +1,7 @@
-import type { DefaultSession, NextAuthOptions } from "next-auth"
+import type { Session, NextAuthOptions } from "next-auth"
 import type { JWT } from "next-auth/jwt"
 import GoogleProvider from "next-auth/providers/google"
+import { UserRole } from "@/models/User"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import clientPromise from "@/lib/mongodb"
@@ -46,6 +47,7 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
+          role: user.role || UserRole.USER, // Default to USER role if not set
         }
       }
     })
@@ -57,11 +59,36 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
-    async session({ session, token }: { session: DefaultSession; token: JWT }) {
-      if (session.user) {
-        (session.user as { id: string | undefined }).id = token.sub;
+    async jwt({ token, user, account }) {
+      console.log('JWT Callback - User:', user)
+      console.log('JWT Callback - Token:', token)
+
+      if (account?.type === 'credentials' && user) {
+        // For credentials sign in
+        token.role = user.role
+      } else if (!token.role) {
+        // For first-time OAuth sign in or missing role
+        try {
+          const client = await clientPromise
+          const db = client.db()
+          const dbUser = await db.collection('users').findOne({ email: token.email })
+          if (dbUser?.role) {
+            token.role = dbUser.role
+          }
+        } catch (error) {
+          console.error('Error fetching user role:', error)
+        }
       }
-      return session;
+      return token
+    },
+    async session({ session, token }: { session: Session; token: JWT }) {
+      console.log('Session Callback - Token:', token)
+      console.log('Session Callback - Session:', session)
+      if (session?.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as UserRole
+      }
+      return session
     },
   },
 }
