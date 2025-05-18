@@ -169,7 +169,7 @@ export default function CreateCourseForm({ onClose, onSubmit, existingCourse }: 
         initial={{ scale: 0.95 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.95 }}
-        className="bg-gray-900 rounded-lg w-full max-w-lg overflow-hidden"
+        className="bg-gray-900 rounded-lg w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden"
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
           <h2 className="text-lg font-semibold text-white">{isEditMode ? 'Edit Course' : 'Create New Course'}</h2>
@@ -181,7 +181,7 @@ export default function CreateCourseForm({ onClose, onSubmit, existingCourse }: 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-400 mb-1">
               Course Title
