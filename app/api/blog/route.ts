@@ -19,12 +19,15 @@ export async function POST(req: NextRequest) {
     
     // Handle cover art if present
     if (data.coverArt && data.coverArt.startsWith('data:')) {
-      data.coverArt = await uploadImage(data.coverArt, blogId, 'cover');
+      const uploadedUrl = await uploadImage(data.coverArt, blogId, 'cover');
       
       // If this is just a cover image upload (type: 'cover'), return the URL directly
       if (data.type === 'cover') {
-        return NextResponse.json({ coverArt: data.coverArt });
+        return NextResponse.json({ coverArt: uploadedUrl });
       }
+      
+      // Otherwise, save the URL for the blog post
+      data.coverArt = uploadedUrl;
     }
 
     // Process content to handle any base64 images
