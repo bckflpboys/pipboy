@@ -20,6 +20,11 @@ export async function POST(req: NextRequest) {
     // Handle cover art if present
     if (data.coverArt && data.coverArt.startsWith('data:')) {
       data.coverArt = await uploadImage(data.coverArt, blogId, 'cover');
+      
+      // If this is just a cover image upload (type: 'cover'), return the URL directly
+      if (data.type === 'cover') {
+        return NextResponse.json({ coverArt: data.coverArt });
+      }
     }
 
     // Process content to handle any base64 images
@@ -33,11 +38,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create slug from title
-    data.slug = data.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+    // Create slug from title if this is a full blog post (not just an image upload)
+    if (data.title) {
+      data.slug = data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+    }
 
     const blog = await Blog.create(data);
     return NextResponse.json(blog);
