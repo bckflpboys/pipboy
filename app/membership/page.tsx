@@ -1,5 +1,7 @@
 'use client';
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -33,7 +35,7 @@ interface Payment {
   description: string;
 }
 
-export default function MembershipPage() {
+function MembershipPageInner() {
   const { status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'payments'>('overview');
@@ -371,5 +373,15 @@ export default function MembershipPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function MembershipPage(props) {
+  return (
+    <ClientWrapper>
+      <MembershipPageInner {...props} />
+    </ClientWrapper>
   );
 }

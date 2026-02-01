@@ -1,5 +1,7 @@
 'use client';
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -14,7 +16,7 @@ interface UserProfile {
   website: string;
 }
 
-export default function ProfilePage() {
+function ProfilePageInner() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
@@ -213,5 +215,15 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function ProfilePage(props) {
+  return (
+    <ClientWrapper>
+      <ProfilePageInner {...props} />
+    </ClientWrapper>
   );
 }

@@ -1,5 +1,7 @@
 'use client';
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -39,7 +41,7 @@ interface Module {
   lessons: Lesson[];
 }
 
-export default function ClassPage() {
+function ClassPageInner() {
   const { status } = useSession();
   const router = useRouter();
   const [activeModule, setActiveModule] = useState<string>('1');
@@ -250,5 +252,15 @@ export default function ClassPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function ClassPage(props) {
+  return (
+    <ClientWrapper>
+      <ClassPageInner {...props} />
+    </ClientWrapper>
   );
 }

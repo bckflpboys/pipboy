@@ -1,5 +1,7 @@
 'use client';
 
+
+import ClientWrapper from '@/components/ClientWrapper';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -30,7 +32,7 @@ interface UserSettings {
   };
 }
 
-export default function SettingsPage() {
+function SettingsPageInner() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
@@ -384,5 +386,15 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+// Export with ClientWrapper for navigation hooks
+export default function SettingsPage(props) {
+  return (
+    <ClientWrapper>
+      <SettingsPageInner {...props} />
+    </ClientWrapper>
   );
 }

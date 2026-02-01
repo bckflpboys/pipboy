@@ -1,12 +1,12 @@
 export const BLOG_CATEGORIES = [
-  'Technology',
-  'Data',
-  'Programming',
-  'Web Development',
-  'AI & Machine Learning',
-  'DevOps',
-  'Security',
-  'Career',
+  'Updates',
+  'Forex Trading',
+  'Analysis',
+  'Trading Strategies',
+  'Risk Management',
+  'Financial Markets',
+  'Cryptocurrency',
+  'Economic Indicators',
   'Other'
 ] as const;
 

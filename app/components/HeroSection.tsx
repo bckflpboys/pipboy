@@ -77,7 +77,7 @@ function HeroSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 1 }}
-              className="mt-12 flex items-center gap-8 justify-center lg:justify-start"
+              className="mt-12 flex items-center gap-8 justify-center lg:justify-start mb-8 lg:mb-0"
             >
               <div className="flex flex-col items-center lg:items-start">
                 <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">5000+</span>
@@ -101,9 +101,9 @@ function HeroSection() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
-            className="flex-1 relative"
+            className="w-full lg:flex-1 relative"
           >
-            <div className="relative w-full max-w-2xl mx-auto">
+            <div className="relative w-full max-w-lg md:max-w-xl lg:max-w-2xl mx-auto">
               <div className="absolute -inset-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-lg"></div>
               <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-gray-800/50">
                 <Image
